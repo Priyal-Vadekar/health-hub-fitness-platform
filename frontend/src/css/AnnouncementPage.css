@@ -1,0 +1,72 @@
+/* Styling for the announcement page */
+.announcement-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .announcement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .announcement-item {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .announcement-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .announcement-item h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .announcement-item p {
+    color: #555;
+    font-size: 14px;
+  }
+  
+  .announcement-detail {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-top: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .announcement-detail h3 {
+    font-size: 24px;
+  }
+  
+  .announcement-detail p {
+    font-size: 16px;
+  }
+  
+  button {
+    padding: 10px 15px;
+    background-color: #4caf50;
+    border: none;
+    /* color: white; */
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  

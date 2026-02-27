@@ -1,0 +1,150 @@
+.payment-container {
+    max-width: 650px;
+    /* Increased width for better content space */
+    margin: 50px auto;
+    padding: 25px;
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    /* Increased border radius for modern look */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 26px;
+    color: #343a40;
+}
+
+/* Price Summary Box */
+.price-summary {
+    background-color: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #007bff;
+}
+
+/* Payment Options Layout */
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Individual Payment Option */
+.payment-option {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Selected Payment Option */
+.payment-option.selected {
+    border-color: #28a745;
+    background-color: #e6f7e6;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.1);
+}
+
+/* Input Spacing */
+.payment-option input {
+    margin-right: 12px;
+}
+
+/* Payment Icons Container */
+.payment-icons,
+.crypto-icons {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+/* Payment & Crypto Icon Sizes */
+.payment-icons img,
+.crypto-icons img {
+    width: 36px;
+    height: 24px;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Specific PayPal and Klarna Icon Resizing */
+.payment-option img[src*="paypal.png"] {
+    width: 50px;
+    height: auto;
+    margin-left: 12px;
+}
+
+.payment-option img[src*="klarna.png"] {
+    width: 45px;
+    height: auto;
+    margin-left: 12px;
+}
+
+/* Hover Animation for Icons */
+.payment-icons img:hover,
+.crypto-icons img:hover {
+    transform: scale(1.1);
+}
+
+/* Main Payment Icon */
+.payment-icon {
+    width: 50px;
+    height: auto;
+    margin-left: 12px;
+    vertical-align: middle;
+}
+
+/* Complete Order Button */
+.complete-order-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Button Hover Effect */
+.complete-order-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .payment-container {
+        padding: 18px;
+    }
+
+    .payment-option {
+        padding: 10px 12px;
+    }
+
+    .payment-icons img,
+    .crypto-icons img {
+        width: 28px;
+        height: 18px;
+    }
+
+    /* Smaller PayPal and Klarna icons on mobile */
+    .payment-option img[src*="paypal.png"],
+    .payment-option img[src*="klarna.png"] {
+        width: 40px;
+        margin-left: 8px;
+    }
+
+    .complete-order-btn {
+        padding: 12px;
+    }
+}

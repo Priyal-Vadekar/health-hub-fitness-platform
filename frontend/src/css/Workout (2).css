@@ -1,0 +1,265 @@
+/* Container*/
+.container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  /* Heading */
+  .heading {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* Exercise Container */
+  .exercise-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  /* Exercise Card */
+  .exercise-card {
+    width: 400px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    text-align: left;border: 3px solid #d4d2d2;
+  }
+  
+  /* Image */
+  .image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 3px solid #eceaea;
+  }
+  
+  /* Title */
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  /* Description */
+  .description {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  /* Button */
+  Button {
+    box-shadow: 0 1px 1px;
+    border: 1px solid #008ecf;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 60%;
+    max-width: 600px;
+    border: 3px solid #ccbcbc;
+  }
+  
+  /* Modal Image */
+  .modal-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  
+  /* Modal Steps */
+  .modal-steps {
+    margin-bottom: 20px;
+  }
+  
+  .modal-steps-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .modal-steps-list {
+    padding-left: 20px;
+    text-align: left;
+  }
+  
+  .modal-steps-item {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  /* Close Button */
+  .close-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+   */
+
+   /* Workout.css */
+
+/* General Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.heading {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+}
+
+/* Exercise Cards */
+.exercise-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.exercise-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease-in-out;
+ 
+  /* Ensure the card expands fully */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.exercise-card:hover {
+  transform: translateY(-5px);
+}
+
+.image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.description {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+p {
+  font-size: 1rem;
+  color: #333;
+}
+
+button {
+  margin-top: auto;  /* Pushes button to bottom */
+  background-color: #4CAF50;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.how-to-container {
+  margin-top: 20px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  max-width: 800px;
+  width: 90%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-steps-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.modal-steps-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+.modal-steps-item {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.close-button {
+  background-color: #f44336;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.close-button:hover {
+  background-color: #e53935;
+}

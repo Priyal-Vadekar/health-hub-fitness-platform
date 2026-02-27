@@ -1,0 +1,62 @@
+[
+  {
+    "user": "6811243eb047376f1e17b60b",
+    "role": "Trainer",
+    "image": "f2.jpg",
+    "description": "Experienced strength coach specializing in muscle gain and endurance training.",
+    "specialty": "Strength Training"
+  },
+  {
+    "user": "6811243eb047376f1e17b60c",
+    "role": "Trainer",
+    "image": "Yoga.jpg",
+    "description": "Certified yoga instructor with 10+ years of experience.",
+    "specialty": "Yoga"
+  },
+  {
+    "user": "6811243eb047376f1e17b60d",
+    "role": "Receptionist",
+    "image": "Receptionist.jpg",
+    "description": "Friendly front desk assistant managing appointments and customer queries."
+  },
+  {
+    "user": "6811243eb047376f1e17b60e",
+    "role": "Manager",
+    "image": "f3.jpg",
+    "description": "Gym manager overseeing staff, operations, and client satisfaction."
+  },
+  {
+    "user": "6811243eb047376f1e17b60f",
+    "role": "Trainer",
+    "image": "trainer1.jpg",
+    "description": "Certified personal trainer focused on weight loss and body toning.",
+    "specialty": "Personal Training"
+  },
+  {
+    "user": "6811243eb047376f1e17b610",
+    "role": "Trainer",
+    "image": "f1 (1).jpg",
+    "description": "Professional CrossFit coach with expertise in high-intensity interval training.",
+    "specialty": "CrossFit"
+  },
+  {
+    "user": "6811243eb047376f1e17b611",
+    "role": "Nutritionist",
+    "image": "nutritionist.jpg",
+    "description": "Registered dietitian providing personalized diet plans for fitness enthusiasts.",
+    "specialty": "Sports Nutrition"
+  },
+  {
+    "user": "6811243eb047376f1e17b612",
+    "role": "Physiotherapist",
+    "image": "physio.jpg",
+    "description": "Licensed physiotherapist specializing in sports injury rehabilitation.",
+    "specialty": "Rehabilitation"
+  },
+  {
+    "user": "6811243eb047376f1e17b613",
+    "role": "Customer Support",
+    "image": "support.jpg",
+    "description": "Ensures smooth client interactions and handles customer inquiries efficiently."
+  }
+]

@@ -1,0 +1,21 @@
+.img-effect {
+    transition: transform 0.4s ease, filter 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+}
+
+.img-effect:hover {
+    transform: scale(1.05);
+    filter: grayscale(0%) brightness(105%);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.card-hover-effect {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.card-hover-effect:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-color: #ff6600;
+}

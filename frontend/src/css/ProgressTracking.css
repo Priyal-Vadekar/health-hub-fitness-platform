@@ -1,0 +1,311 @@
+/* === Calendar Customization === */
+
+/* Remove rounded corners from nav buttons (prev/next) */
+.react-calendar__navigation button {
+    border-radius: 0 !important;
+    background-color: #222 !important;
+    color: white !important;
+    border: none;
+    padding: 10px 0;
+    transition: background-color 0.2s ease;
+}
+
+/* Remove rounded corners from the date tiles */
+.react-calendar__tile {
+    border-radius: 0 !important;
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 0;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover effect for nav buttons */
+.react-calendar__navigation button:hover {
+    background-color: #444 !important;
+}
+
+/* Hover effect for date tiles */
+.react-calendar__tile:hover {
+    background-color: #555 !important;
+    color: #fff !important;
+}
+
+/* Highlight selected date */
+.react-calendar__tile--active {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+/* === Layout for Calendar and Chart === */
+
+.progress-page {
+    padding: 20px;
+    min-height: 100vh;
+    background: #0f101c;
+    color: #fff;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.progress-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.progress-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px 0;
+}
+
+.calendar-wrapper {
+    flex: 1;
+    min-width: 280px;
+    background: #161727;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+.chart-wrapper {
+    flex: 2;
+    min-width: 300px;
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chart-wrapper canvas {
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+/* Custom Chart.js Styles */
+.chart-wrapper .chartjs-render-monitor {
+    animation: chartjs-render-animation 0.001s;
+}
+
+/* Chart Title */
+.chart-wrapper .chartjs-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Chart Legend */
+.chart-wrapper .chartjs-legend {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.chart-wrapper .chartjs-legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.chart-wrapper .chartjs-legend-item span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border-radius: 2px;
+}
+
+/* Chart Grid Lines */
+.chart-wrapper .chartjs-grid {
+    border-color: #e9ecef;
+    border-width: 1px;
+}
+
+/* Chart Tooltip */
+.chart-wrapper .chartjs-tooltip {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Chart Animation */
+@keyframes chartjs-render-animation {
+    from { opacity: 0.99; }
+    to   { opacity: 1; }
+}
+
+/* Responsive Chart */
+@media (max-width: 768px) {
+    .chart-wrapper {
+        min-width: 100%;
+        margin-top: 20px;
+    }
+}
+
+/* Optional: Title style */
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Buttons ===== */
+.btn-primary,
+.btn-secondary {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #3a3a4a;
+    color: #fff;
+}
+
+/* ===== Modal – fixes “under header / cannot scroll” ===== */
+.progress-modal-overlay {
+    position: fixed;            /* cover full viewport */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;              /* above navbar/header */
+    overflow: auto;             /* if modal taller than viewport */
+}
+
+.progress-modal {
+    background: #1e1e2f;
+    border-radius: 10px;
+    padding: 1.8rem;
+    max-width: 650px;
+    width: 95%;
+    max-height: 90vh;           /* stop under header */
+    overflow-y: auto;           /* scroll inside the modal */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.progress-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.close-button {
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Modal form */
+.progress-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: #ccc;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #3a3a4a;
+    background: #141423;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+/* Smaller screens */
+@media (max-width: 600px) {
+    .progress-page {
+        padding: 12px;
+    }
+    .progress-modal {
+        padding: 1.2rem;
+    }
+    .form-row {
+        flex-direction: column;
+    }
+}

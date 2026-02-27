@@ -1,0 +1,77 @@
+/* Sidebar Container */
+.sidebar {
+    height: 100vh;
+    width: 200px; /* Default expanded width */
+    background-color: #0f0f1a;
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-top: 20px;
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+/* Collapsed Sidebar */
+.sidebar.collapsed {
+    width: 60px; /* Reduced width for collapsed mode */
+}
+
+/* Navigation List */
+.nav-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Navigation Item */
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    text-transform: capitalize;
+    gap: 12px;
+    position: relative;
+    color: white;
+    transition: background 0.3s ease-in-out;
+}
+
+.nav-item i {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+/* Hover Effect */
+.nav-item:hover {
+    background-color: #1a1a2e;
+    transition: 0.3s;
+}
+
+/* Hide Text in Collapsed Mode */
+.sidebar.collapsed .links_name {
+    display: none;
+}
+
+/* Tooltip Styling */
+.tooltip {
+    display: none;
+    position: absolute;
+    left: 70px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Show Tooltip in Collapsed Mode */
+.sidebar.collapsed .nav-item:hover .tooltip {
+    display: block;
+    opacity: 1;
+}

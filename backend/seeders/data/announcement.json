@@ -1,0 +1,26 @@
+[
+  {
+    "title": "New Gym Hours",
+    "date": "2025-03-05",
+    "description": "Our gym will now be open from 5 AM to 10 PM. Check out the new hours!",
+    "recipients": ["member", "trainer"],
+    "type": "general",
+    "active": true
+  },
+  {
+    "title": "Upcoming Event: Yoga Class",
+    "date": "2025-03-10",
+    "description": "Join us for a special Yoga class every Tuesday and Thursday at 6 PM. Free for all members!",
+    "recipients": ["Member", "Trainer"],
+    "type": "class",
+    "active": true
+  },
+  {
+    "title": "Special Offer: 20% off Membership",
+    "date": "2025-03-15",
+    "description": "Sign up for an annual membership and get 20% off! Limited-time offer.",
+    "recipients": ["Member", "Trainer"],
+    "type": "renewal",
+    "active": true
+  }
+] 

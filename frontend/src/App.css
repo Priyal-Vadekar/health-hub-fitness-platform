@@ -1,0 +1,41 @@
+/* Content Section */
+.content-container {
+  padding: 0px;
+  border-radius: 10px;
+  margin-top: 94px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-container {
+    width: 150%;
+    padding: 5px;
+  }
+}
+
+
+/* Make the modal match your dark theme */
+.modal-content {
+  background-color: #1c1f26;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-backdrop.show {
+  opacity: 0.7;
+  backdrop-filter: blur(2px);
+}
+
+/* If some global CSS forces a scrollbar, neutralize it while modal is open */
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  height: 100% !important;
+  padding-right: 0 !important;
+  /* avoid weird right-gap on Windows */
+}

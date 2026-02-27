@@ -1,0 +1,25 @@
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 30px;
+  background-color: #000000;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+.logout-btn {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}

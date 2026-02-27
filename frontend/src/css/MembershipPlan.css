@@ -1,0 +1,131 @@
+/* MembershipPlan.css - Matched with Header/Footer */
+.membership-container {
+  /* dark background */
+  color: #ffffff;
+  padding: 2rem;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.membership-container h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #FFD700;
+  /* gold highlight */
+}
+
+.membership-options {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.membership-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFD700;
+  /* Gold accent */
+  text-align: center;
+  margin: 2rem 0 1.5rem;
+  letter-spacing: 1px;
+}
+
+.membership-btn {
+  background-color: #2e2e3e;
+  color: #FFD700;
+  border: 1px solid #FFD700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.membership-btn:hover {
+  background-color: #FFD700;
+  color: #1e1e2f;
+}
+
+.membership-details {
+  background-color: #2a2a3b;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.membership-details h2 {
+  color: #FFD700;
+  font-size: 1.8rem;
+}
+
+.membership-details p {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.membership-details ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.membership-details li {
+  margin-bottom: 0.5rem;
+  color: #eee;
+}
+
+.personal-trainer {
+  margin: 1.5rem 0;
+}
+
+.personal-trainer-btn {
+  background-color: #1e1e2f;
+  /* Dark base like navbar */
+  color: #FFD700;
+  /* Gold text */
+  border: 1px solid #FFD700;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.personal-trainer-btn:hover {
+  background-color: #FFD700;
+  color: #1e1e2f;
+}
+
+.personal-trainer-btn.selected {
+  background-color: #FFD700;
+  color: #1e1e2f;
+  font-weight: bold;
+}
+
+.subscribe-btn {
+  background-color: #FFD700;
+  color: #1e1e2f;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.subscribe-btn:hover {
+  background-color: #e6c200;
+}
+
+.membership-details-placeholder {
+  text-align: center;
+  font-style: italic;
+  color: #aaa;
+  margin-top: 2rem;
+}

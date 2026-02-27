@@ -1,0 +1,143 @@
+[{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b60b"
+  },
+  "name": "Ms. Angel Labadie",
+  "email": "Marina58@gmail.com",
+  "password": "$2b$10$D4HpCI9pVTujB/ctOMNiQOABijVNia77UgZH/1S2tZREmK5hXlF/S",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b60c"
+  },
+  "name": "Latoya Weimann",
+  "email": "Carson64@hotmail.com",
+  "password": "$2b$10$jKjLssrr968nCnw5lJ9t9.ssRenNAYGe6SJrFZzcw2OdcLTRB2BwK",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b60d"
+  },
+  "name": "Chad Jones",
+  "email": "Leanne.Stamm@hotmail.com",
+  "password": "$2b$10$Hhj0F4mhJV9ukY1rZ7knde2RFTNPBeMoYS528FZeaoP2oCWp/9gpq",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b60e"
+  },
+  "name": "Debbie Kessler",
+  "email": "Phoebe.Corkery@gmail.com",
+  "password": "$2b$10$LFu7XcfqiX2stnKnfU8Twus6YciuOUkX/KG5s/7wDmrlWGwMJwux2",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b60f"
+  },
+  "name": "Robin Kunze",
+  "email": "Florida21@gmail.com",
+  "password": "$2b$10$xwQBU.s2v4sCRzyBZbFateX3r1iEssr.IZ8MJfnudT3rcmMJy2Kyq",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b610"
+  },
+  "name": "Delores Kulas MD",
+  "email": "Megane55@yahoo.com",
+  "password": "$2b$10$YO00KedWjjEv4/CmQrQbT.E34blYlDa8TYbKNQ/pPjeKS2SCkwBFi",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b611"
+  },
+  "name": "Vickie Volkman",
+  "email": "Leta_Stehr11@gmail.com",
+  "password": "$2b$10$pJyQhr13wXI2tmgU/d/hEuxGebOqzaVw8tNNmKuANhEBWT.k39Zoq",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b612"
+  },
+  "name": "Rosemarie Mosciski",
+  "email": "Yasmine_Purdy@hotmail.com",
+  "password": "$2b$10$aRG2xuGyVY.MpdCkYV0.9OEwtVreiG./elYKIn5mwIzQinzxiaYjO",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b613"
+  },
+  "name": "Marion Bins",
+  "email": "Nils.Frami@hotmail.com",
+  "password": "$2b$10$5cJfmg5STG6neylzo99IfuvG.LGkAwjr5AC/TKw7W8PQ2X7wUwy8.",
+  "googleId": null,
+  "role": "Trainer",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6811243eb047376f1e17b614"
+  },
+  "name": "Terry Kessler",
+  "email": "Rhea44@gmail.com",
+  "password": "$2b$10$KI3XqLSJzfWxyUrRlA70ce/7/W1VnXB9Fas3yWET0ajXprOCbypvO",
+  "googleId": null,
+  "role": "Member",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68112ebcface9c7d529c8cda"
+  },
+  "name": "Priyal Vadekar",
+  "email": "priyalvadekar@gmail.com",
+  "googleId": "Hxf7lXJpZMXuTqRX2CROEYvKIvF3",
+  "profilePic": "https://lh3.googleusercontent.com/a/ACg8ocKHnvqItngM-CFAtl2lenrTRUPTLzLBP1cFqvJ1UUbzadGtkw=s96-c",
+  "role": "Admin",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68132b9bd09acb335f10a427"
+  },
+  "name": "Priyal",
+  "email": "priyalvadekar1504@gmail.com",
+  "password": "$2b$10$j0JHMK/oTF2pd5OWsmf6Su6fMaRl26m8Yb1gb1UQokUDVe5edEcAa",
+  "googleId": null,
+  "role": "Admin",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681333e6d09acb335f10a4d2"
+  },
+  "name": "Priyal",
+  "email": "pinevadekar1504@gmail.com",
+  "password": "$2b$10$peePTJo.pm1sxBS1m8vPaucz0Web3c6ygebAOTlibzzzyPX/ZzTfy",
+  "googleId": null,
+  "role": "Member",
+  "__v": 0
+}]

@@ -1,0 +1,294 @@
+/* General container styles */
+.diet-container {
+  width: 100%;
+  margin: auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 70px;
+  background-color: #f3f3f3;
+  /* Dark background to match MembershipPlan */
+  color: #ffffff;
+  /* White text for contrast */
+  border-radius: 8px;
+}
+
+.diet-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFD700;
+  /* Gold accent */
+  text-align: center;
+  margin: 2rem 0 1.5rem;
+  letter-spacing: 1px;
+}
+
+/* Button styles */
+.diet-options {
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.diet-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #2e2e3e;
+  /* Dark base color */
+  color: #FFD700;
+  /* Gold text */
+  border: 1px solid #FFD700;
+  /* Gold border */
+  border-radius: 6px;
+  /* Rounded edges */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 10px;
+  /* Adds horizontal spacing between buttons */
+}
+
+.diet-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.3);
+  /* Subtle gold outline for focus state */
+}
+
+.diet-btn:hover {
+  background-color: #FFD700;
+  /* Gold background on hover */
+  color: #1e1e2f;
+  /* Dark text on hover */
+}
+
+.diet-btn:active {
+  background-color: #28a745;
+  /* Green color when clicked */
+  transform: scale(0.98);
+  /* Slight scale effect when pressed */
+}
+
+/* Active Button */
+.diet-btn.active {
+  background-color: #28a745 !important;
+  /* Green color for active state */
+  color: #fff;
+}
+
+/* Diet Plan card styles */
+.diet-plan-card {
+  background-color: #2a2a3b;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+/* Card Button Container */
+.card-btn-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.card-btn-container button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  background-color: #FFD700;
+  /* Gold background for card buttons */
+  color: #1e1e2f;
+  /* Dark text for contrast */
+  border: 1px solid #FFD700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s;
+}
+
+.card-btn-container button:hover {
+  background-color: #e6c200;
+  /* Slightly darker gold on hover */
+}
+
+.diet-plan-title {
+  font-size: 1.8rem;
+  color: #FFD700;
+  /* Gold title */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.diet-section {
+  margin-bottom: 20px;
+}
+
+.diet-section h3 {
+  font-size: 1.4rem;
+  color: #FFD700;
+  /* Gold subtitle */
+  border-bottom: 2px solid #FFD700;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.diet-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.diet-section ul li {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #ccc;
+  /* Light gray for text */
+}
+
+.diet-section ul li:before {
+  content: "✓";
+  margin-right: 10px;
+  color: #FFD700;
+  /* Gold checkmark */
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  .diet-container {
+    width: 100%;
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .diet-plan-card {
+    padding: 15px;
+  }
+
+  .diet-section h3 {
+    font-size: 1.2rem;
+  }
+
+  .diet-section ul li {
+    font-size: 0.9rem;
+  }
+
+  .diet-btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+
+  .card-btn-container button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+}
+
+
+
+
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #1e1e2f;
+  color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 100%;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.6rem;
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+.modal-form .form-group {
+  margin-bottom: 20px;
+}
+
+.modal-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ffc107;
+}
+
+.modal-form input[type="number"],
+.modal-form input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #2c2c44;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  color: #ffc107;
+}
+
+.radio-group input[type="radio"] {
+  margin-right: 6px;
+  accent-color: #ff9800;
+  /* Orange theme color */
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #ff6b6b;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 1rem;
+}
+
+.submit-btn:hover {
+  background-color: #ff4b4b;
+}

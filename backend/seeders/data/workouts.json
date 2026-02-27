@@ -1,0 +1,358 @@
+[
+  {
+    "title": "Gym Workout Exercises",
+    "exercises": [
+      {
+        "name": "Deadlift",
+        "image": "/Images/Deadlift.jpg",
+        "description": "Deadlifts help build overall strength and target muscles in the back, legs, and core.",
+        "sets": 3,
+        "reps": 8,
+        "tips": "Keep your back straight while lifting.",
+        "steps": [
+          "Stand with your feet hip-width apart.",
+          "Grip the barbell just outside your knees.",
+          "Engage your core and pull the barbell up by driving through your heels.",
+          "Keep the bar close to your body as you stand upright.",
+          "Lower the bar slowly back to the ground"
+        ],
+        "videoUrl": "https://youtu.be/ntr64W6ZWB0?si=A0Zxvui2CXhLHJtJ"
+      },
+      {
+        "name": "Bench Press",
+        "image": "/Images/BenchPress.jpg",
+        "description": "The bench press is a classic exercise for building upper body strength, especially the chest.",
+        "sets": 4,
+        "reps": 10,
+        "tips": "Don't let your elbows flare out too much.",
+        "steps": [
+          "Lie flat on the bench with your feet flat on the floor.",
+          "Grip the bar slightly wider than shoulder-width.",
+          "Lower the bar slowly to your chest, keeping your elbows at a 45-degree angle.",
+          "Press the bar back up to arm’s length, focusing on squeezing your chest."
+        ],
+        "videoUrl": "https://youtu.be/EPetH7lopsE?si=gPfTlZlPgeIfq8NW"
+      },
+      {
+        "name": "Leg Press",
+        "image": "/Images/LegPress.jpg",
+        "description": "Leg press machines target your quads, hamstrings, and glutes for lower body strength.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Ensure your feet are placed evenly on the platform.",
+        "steps": [
+          "Sit down on the leg press machine with your feet shoulder-width apart.",
+          "Place your feet flat on the platform, ensuring your knees are in line with your toes.",
+          "Push the platform away with your heels, extending your legs.",
+          "Slowly lower the weight back down while maintaining control."
+        ],
+        "videoUrl": "https://youtube.com/shorts/OlWE5rOjS5o?si=GeHxVKl3uRn91HDe"
+      },
+      {
+        "name": "Pull-up",
+        "image": "/Images/Pull-up.jpg",
+        "description": "Pull-ups help strengthen the back, shoulders, and arms by engaging multiple muscle groups.",
+        "sets": 3,
+        "reps": 6,
+        "tips": "Engage your core and avoid swinging.",
+        "steps": [
+          "Grab the pull-up bar with palms facing away and hands shoulder-width apart.",
+          "Hang with your arms fully extended.",
+          "Pull your body upwards until your chin is above the bar.",
+          "Slowly lower your body back to the starting position."
+        ],
+        "videoUrl": "https://youtube.com/shorts/l6-aIZTbAR0?si=dBXmGDLmDw-SbujU"
+      },
+      {
+        "name": "Overhead Press",
+        "image": "/Images/OverheadPress.jpg",
+        "description": "The overhead press primarily targets the shoulders, triceps, and upper chest.",
+        "sets": 4,
+        "reps": 10,
+        "tips": "Avoid arching your back too much.",
+        "steps": [
+          "Stand with your feet shoulder-width apart and grip the bar at shoulder height.",
+          "Press the bar overhead while keeping your core tight.",
+          "Lower the bar slowly back to shoulder height."
+        ],
+        "videoUrl": "https://youtu.be/G2qpTG1Eh40?si=XynBDL9wmKx1RD9C"
+      },
+      {
+        "name": "Bicep Curl",
+        "image": "/Images/BicepCurl.jpg",
+        "description": "Bicep curls effectively help strengthen and target the muscles in the arms.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Don't swing your body during the movement.",
+        "steps": [
+          "Stand with a dumbbell in each hand, arms fully extended.",
+          "Curl the dumbbells towards your shoulders by bending your elbows.",
+          "Lower the dumbbells back down slowly."
+        ],
+        "videoUrl": "https://youtube.com/shorts/1wgSAr2hPHk?si=yxAUaEm14hY76gan"
+      },
+      {
+        "name": "Tricep Dips",
+        "image": "/Images/TricepDip.jpg",
+        "description": "Tricep dips intensely improve strength and target the triceps, helping with arm strength.",
+        "sets": 3,
+        "reps": 10,
+        "tips": "Keep your elbows close to your body.",
+        "steps": [
+          "Place your hands behind you on a bench or dip bars.",
+          "Lower your body by bending your elbows until your upper arms are parallel to the ground.",
+          "Press back up to the starting position."
+        ],
+        "videoUrl": "https://youtu.be/89_spgcdQlw?si=vOOjfkk9zoDKTNnC"
+      },
+      {
+        "name": "Lunges",
+        "image": "/Images/lunge.jpg",
+        "description": "Lunges are excellent for targeting the legs, especially the quads and glutes.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Keep your chest up and your knees behind your toes.",
+        "steps": [
+          "Step forward with one leg, lowering your hips to a 90-degree angle.",
+          "Push off the front foot and return to standing position.",
+          "Repeat on the other leg."
+        ],
+        "videoUrl": "https://youtu.be/ugW5I-a5A-Q?si=2wl9aEzLrGKl5QGX"
+      },
+      {
+        "name": "Leg Curl Machine",
+        "image": "/Images/LegCurlMachine.jpg",
+        "description": "Leg curls effectively target the hamstrings to help boost mobility, improve flexibility, and increase endurance while enhancing lower body strength.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Control the movement, especially on the return phase.",
+        "steps": [
+          "Sit down on the leg curl machine with your legs extended and ankles under the pad.",
+          "Curl your legs towards your glutes by bending your knees.",
+          "Slowly return to the starting position."
+        ],
+        "videoUrl": "https://youtu.be/t9sTSr-JYSs?si=WLxp3KqdrbpEi4nP"
+      },
+      {
+        "name": "Goblet Squat",
+        "image": "/Images/GobletSquat.jpg",
+        "description": "Goblet squats are a great variation of the squat that help improve lower body strength and mobility, while also engaging the core.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Keep the weight close to your chest and maintain a tall posture throughout.",
+        "steps": [
+          "Stand with your feet shoulder-width apart, holding a dumbbell or kettlebell close to your chest with both hands.",
+          "Engage your core and keep your chest upright.",
+          "Push your hips back and bend your knees to lower into a squat position.",
+          "Ensure your knees are in line with your toes and do not cave in.",
+          "Lower yourself until your thighs are parallel to the ground, then drive through your heels to return to standing."
+        ],
+        "videoUrl": "https://youtu.be/9KzZD_n2r64?si=jkmg-HPHKxHGs_A6"
+      },
+      {
+        "name": "Chest Fly",
+        "image": "/Images/ChestFly.jpg",
+        "description": "Chest flys target the chest and shoulders to build upper body strength, improve posture, and enhance muscle definition and stability.",
+        "sets": 4,
+        "reps": 10,
+        "tips": "Avoid locking your elbows during the movement.",
+        "steps": [
+          "Lie on a bench holding a pair of dumbbells with your arms extended above your chest.",
+          "Lower the dumbbells outward to the sides, keeping a slight bend in your elbows.",
+          "Bring the dumbbells back together, squeezing your chest at the top."
+        ],
+        "videoUrl": "https://youtu.be/eGjt4lk6g34?si=2FKhnJt1jS9Hb62g"
+      },
+      {
+        "name": "Lat Pulldown",
+        "image": "/Images/LatPulldown.jpg",
+        "description": "The lat pulldown targets the back muscles, particularly the lats, to help with upper body strength, improve posture, and enhance muscle development.",
+        "sets": 3,
+        "reps": 10,
+        "tips": "Focus on pulling your elbows down, not your hands.",
+        "steps": [
+          "Sit at the lat pulldown machine with your feet flat on the floor.",
+          "Grip the bar slightly wider than shoulder-width with palms facing forward.",
+          "Pull the bar down towards your chest while squeezing your shoulder blades together.",
+          "Slowly release the bar back to the starting position with control."
+        ],
+        "videoUrl": "https://youtu.be/AOpi-p0cJkc?si=JZI6MjvTuVXwM7si"
+      }
+    ]
+  },
+  {
+    "title": "Home Workout Exercises",
+    "exercises": [
+      {
+        "name": "Push-ups",
+        "image": "/Images/pushup.jpg",
+        "description": "Push-ups are a bodyweight exercise that primarily target the chest, shoulders, and triceps.",
+        "sets": 3,
+        "reps": 15,
+        "tips": "Keep your body straight and core engaged throughout the movement.",
+        "steps": [
+          "Start in a high plank position with hands slightly wider than shoulder-width apart.",
+          "Lower your body until your chest almost touches the ground.",
+          "Push through your palms to raise your body back to the starting position."
+        ],
+        "videoUrl": "https://youtu.be/IBRRRzBd24s?si=BHduPdOIlBgz8hn-"
+      },
+      {
+        "name": "Squats",
+        "image": "/Images/Squats.jpg",
+        "description": "Squats target your lower body, specifically your quads, hamstrings, and glutes.",
+        "sets": 4,
+        "reps": 20,
+        "tips": "Ensure your knees don't go past your toes and keep your back straight.",
+        "steps": [
+          "Stand with your feet shoulder-width apart.",
+          "Bend your knees and lower your body as if sitting in a chair.",
+          "Lower until your thighs are parallel to the ground, then return to standing."
+        ],
+        "videoUrl": "https://youtu.be/otzWCWpuW-A?si=Xem72tpLIQh0Wljd"
+      },
+      {
+        "name": "Lunges",
+        "image": "/Images/Lunges.jpg",
+        "description": "Lunges target your legs, specifically your quads, hamstrings, glutes, and calves.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Ensure your knee doesn't pass your toes and your back stays straight.",
+        "steps": [
+          "Stand tall with feet hip-width apart.",
+          "Step forward with one leg and lower your body until both knees are at 90-degree angles.",
+          "Push through the front heel to return to the starting position."
+        ],
+        "videoUrl": "https://youtu.be/wrwwXE_x-pQ?si=idvqsim0m3QjHxwx"
+      },
+      {
+        "name": "Plank",
+        "image": "/Images/Plank.jpg",
+        "description": "Planks strengthen your core, shoulders, back, arms, legs, and stability, while also improving posture, balance, and endurance.",
+        "sets": 3,
+        "reps": "Hold for 30 seconds",
+        "tips": "Keep your body in a straight line from head to heels.",
+        "steps": [
+          "Start in a forearm plank position with elbows under your shoulders.",
+          "Engage your core and keep your body straight.",
+          "Hold this position for the desired time."
+        ],
+        "videoUrl": "https://youtu.be/y1uinA_JknM?si=zREyP9ff25XVoJC6"
+      },
+      {
+        "name": "Jump Squats",
+        "image": "/Images/JumpSquats.jpg",
+        "description": "Jump squats are a plyometric exercise that targets the quads, glutes, and calves while improving explosive power.",
+        "sets": 3,
+        "reps": 15,
+        "tips": "Ensure a soft landing to protect your knees and maintain control.",
+        "steps": [
+          "Stand with your feet shoulder-width apart.",
+          "Lower into a squat position, ensuring your knees don't pass your toes.",
+          "Explode upward, jumping as high as you can.",
+          "Land softly and immediately lower back into the squat position for the next jump."
+        ],
+        "videoUrl": "https://youtu.be/BRfxI2Es2lE?si=VrAlthJ2Txo5ZVam"
+      },
+      {
+        "name": "High Knees",
+        "image": "/Images/HighKnees.jpg",
+        "description": "High knees increase your heart rate, work your legs, and improve cardiovascular endurance while engaging your core and boosting overall stamina.",
+        "sets": 4,
+        "reps": 30,
+        "tips": "Drive your knees up high and maintain a quick pace.",
+        "steps": [
+          "Stand with feet hip-width apart.",
+          "Quickly alternate bringing your knees toward your chest.",
+          "Maintain a steady pace and keep your core engaged."
+        ],
+        "videoUrl": "https://youtu.be/ZNDHivUg7vA?si=yy6RN4Imo4-Nk1I_"
+      },
+      {
+        "name": "Jumping Jacks",
+        "image": "/Images/JumpingJacks.jpg",
+        "description": "Jumping jacks are a full-body exercise that also increases heart rate, enhancing coordination, improving muscular endurance, and boosting metabolism.",
+        "sets": 4,
+        "reps": 30,
+        "tips": "Land softly to reduce impact on your joints.",
+        "steps": [
+          "Stand tall with your arms by your sides.",
+          "Jump while spreading your legs and raising your arms overhead.",
+          "Jump back to the starting position and repeat."
+        ],
+        "videoUrl": "https://youtu.be/iSSAk4XCsRA?si=CnB9aceSAOsC1R2F"
+      },
+      {
+        "name": "Glute Bridge",
+        "image": "/Images/GluteBridge.jpg",
+        "description": "Glute bridges target the glutes, hamstrings, and core, helping to strengthen the lower body, improve posture, enhance flexibility, and promote stability.",
+        "sets": 3,
+        "reps": 15,
+        "tips": "Push through your heels and squeeze your glutes at the top.",
+        "steps": [
+          "Lie on your back with knees bent and feet flat on the floor.",
+          "Lift your hips toward the ceiling, squeezing your glutes.",
+          "Lower your hips back to the ground and repeat."
+        ],
+        "videoUrl": "https://youtu.be/Xp33YgPZgns?si=4zszmJP3mPqfh451"
+      },
+      {
+        "name": "Tricep Dips",
+        "image": "/Images/TricepDips.jpg",
+        "description": "Tricep dips target the triceps and shoulders, enhancing upper body strength, endurance, and toning.",
+        "sets": 3,
+        "reps": 12,
+        "tips": "Keep your elbows close to your body and avoid shrugging your shoulders.",
+        "steps": [
+          "Place your hands on a bench or chair behind you.",
+          "Lower your body by bending your elbows to about 90 degrees.",
+          "Push through your palms to return to the starting position."
+        ],
+        "videoUrl": "https://youtu.be/89_spgcdQlw?si=BGPQ3yIYfyq-DPJx"
+      },
+      {
+        "name": "Bicycle Crunches",
+        "image": "/Images/BicycleCrunches.jpg",
+        "description": "Bicycle crunches work your abs and obliques, improving core strength, stability, and muscle definition.",
+        "sets": 3,
+        "reps": 15,
+        "tips": "Make sure to twist your torso while keeping your back flat on the ground.",
+        "steps": [
+          "Lie on your back with hands behind your head.",
+          "Lift your legs to a 90-degree angle.",
+          "Bring your elbow toward the opposite knee, straightening the other leg out.",
+          "Switch sides and repeat the movement."
+        ],
+        "videoUrl": "https://youtu.be/HAYpyKs_yP0?si=E49ftQdhbw00eqvG"
+      },
+      {
+        "name": "Russian Twists",
+        "image": "/Images/RussianTwists.jpg",
+        "description": "Russian twists target your obliques and core, improving strength, stability, balance, and rotational movement.",
+        "sets": 3,
+        "reps": 20,
+        "tips": "Engage your core and rotate your torso, not just your arms.",
+        "steps": [
+          "Sit on the ground with your knees bent and feet flat.",
+          "Lean back slightly and lift your feet off the ground.",
+          "Twist your torso to one side, then to the other."
+        ],
+        "videoUrl": "https://youtu.be/DJQGX2J4IVw?si=KZf4y8rfw4RF0ATl"
+      },
+      {
+        "name": "Mountain Climbers",
+        "image": "/Images/MountainClimbers.jpg",
+        "description": "Mountain climbers target your core, shoulders, and legs, boosting cardiovascular health, agility, and overall endurance.",
+        "sets": 4,
+        "reps": 20,
+        "tips": "Maintain a fast pace and keep your core engaged.",
+        "steps": [
+          "Start in a high plank position.",
+          "Bring one knee toward your chest, then quickly switch legs.",
+          "Repeat the movement as quickly as possible."
+        ],
+        "videoUrl": "https://youtu.be/ZhiCSdOVJp0?si=Zw9NHuPuFZ2d9ioQ"
+      }
+    ]
+  }
+]

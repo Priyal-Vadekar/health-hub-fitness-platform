@@ -1,0 +1,228 @@
+[
+  {
+    "trainer": "68132b9bd09acb335f10a427",
+    "category": "Weight Gain - Vegetarian",
+    "meals": [
+      {
+        "timeOfDay": "Early Morning",
+        "items": [
+          "Warm water with lemon",
+          "Soaked almonds (5-6) & walnuts (2-3)",
+          "1 glass of fresh orange juice (without sugar)",
+          "1 glass of warm turmeric milk"
+        ]
+      },
+      {
+        "timeOfDay": "Breakfast",
+        "items": [
+          "Protein smoothie (banana, peanut butter, oats, milk, plant-based protein powder)",
+          "Whole wheat toast with avocado & scrambled tofu",
+          "Oats and chia pudding (soaked overnight with almond milk)",
+          "Pancakes made with almond flour and maple syrup"
+        ]
+      },
+      {
+        "timeOfDay": "Mid-Morning Snack",
+        "items": [
+          "Fruit & Nut mix (apple or banana, mixed nuts, seeds)",
+          "Chia Pudding (chia seeds, almond milk, honey)",
+          "2 boiled eggs (or scrambled tofu for vegan option)",
+          "Granola bars with nuts & seeds"
+        ]
+      },
+      {
+        "timeOfDay": "Lunch",
+        "items": [
+          "Quinoa or Brown rice salad with mixed veggies, chickpeas, olive oil, lemon juice",
+          "Sweet potato & black bean bowl with avocado & lime",
+          "Vegetable and lentil soup with whole-grain bread",
+          "Stuffed whole wheat pita with hummus, falafel, and tabbouleh"
+        ]
+      },
+      {
+        "timeOfDay": "Evening Snack",
+        "items": [
+          "Greek yogurt with berries",
+          "Whole grain crackers with hummus",
+          "Peanut butter on whole wheat bread with banana",
+          "Avocado toast on whole wheat bread with a sprinkle of flaxseeds"
+        ]
+      },
+      {
+        "timeOfDay": "Post-Workout Snack",
+        "items": [
+          "Protein shake (plant-based protein powder, almond milk)",
+          "Fruit smoothie with protein powder",
+          "Energy balls made with oats, peanut butter, and honey"
+        ]
+      },
+      {
+        "timeOfDay": "Dinner",
+        "items": [
+          "Vegetable stir-fry (tofu, mixed veggies, brown rice or quinoa)",
+          "Chickpea & spinach curry",
+          "Grilled vegetable wrap with hummus & spinach",
+          "Vegan lasagna with zucchini noodles"
+        ]
+      },
+      {
+        "timeOfDay": "Bedtime Snack",
+        "items": [
+          "Warm turmeric milk",
+          "Cottage cheese (paneer)",
+          "Almond butter on whole wheat toast"
+        ]
+      }
+    ]
+  },
+  {
+    "trainer": "68132b9bd09acb335f10a427",
+    "category": "Weight Gain - Non-Vegetarian",
+    "meals": [
+      {
+        "timeOfDay": "Early Morning",
+        "items": [
+          "Warm water with lemon",
+          "Soaked almonds (5-6) & walnuts (2-3)",
+          "1 glass of fresh orange juice (without sugar)",
+          "1 glass of warm turmeric milk"
+        ]
+      },
+      {
+        "timeOfDay": "Breakfast",
+        "items": [
+          "Chicken breast with scrambled eggs & whole wheat toast",
+          "Protein smoothie (banana, peanut butter, oats, milk, protein powder)",
+          "Grilled chicken wrap with avocado",
+          "Omelette with spinach, mushrooms, and feta"
+        ]
+      },
+      {
+        "timeOfDay": "Mid-Morning Snack",
+        "items": [
+          "Fruit & Nut mix (apple, banana, mixed nuts)",
+          "Chia Pudding (chia seeds, almond milk, honey)",
+          "Boiled eggs with salt & pepper",
+          "Greek yogurt with honey and granola"
+        ]
+      },
+      {
+        "timeOfDay": "Lunch",
+        "items": [
+          "Grilled chicken with mixed greens salad",
+          "Quinoa or brown rice salad with chicken, veggies, and olive oil",
+          "Sweet potato & black bean bowl",
+          "Salmon with avocado and quinoa"
+        ]
+      },
+      {
+        "timeOfDay": "Evening Snack",
+        "items": [
+          "Greek yogurt with berries",
+          "Whole grain crackers with hummus",
+          "Chicken & avocado salad",
+          "Protein bar"
+        ]
+      },
+      {
+        "timeOfDay": "Post-Workout Snack",
+        "items": [
+          "Protein shake (whey protein powder, almond milk)",
+          "Chicken breast with a protein bar"
+        ]
+      },
+      {
+        "timeOfDay": "Dinner",
+        "items": [
+          "Grilled chicken with steamed vegetables & quinoa",
+          "Grilled fish with roasted vegetables",
+          "Chickpea & spinach curry",
+          "Beef steak with mashed potatoes"
+        ]
+      },
+      {
+        "timeOfDay": "Bedtime Snack",
+        "items": [
+          "Warm turmeric milk",
+          "Cottage cheese (paneer)",
+          "Almond butter on whole wheat toast"
+        ]
+      }
+    ]
+  },
+  {
+    "trainer": "68132b9bd09acb335f10a427",
+    "category": "Weight Loss - Vegetarian",
+    "meals": [
+      {
+        "timeOfDay": "Early Morning",
+        "items": [
+          "Warm water with lemon",
+          "Soaked almonds (5-6) & walnuts (2-3)",
+          "1 glass of fresh green juice (without sugar)"
+        ]
+      },
+      {
+        "timeOfDay": "Breakfast",
+        "items": [
+          "Green smoothie (spinach, kale, cucumber, avocado, protein powder)",
+          "Vegetable omelette (using egg whites)",
+          "Chia pudding with almond milk and mixed berries",
+          "Whole wheat toast with avocado and a boiled egg"
+        ]
+      }
+    ]
+  },
+  {
+    "trainer": "68132b9bd09acb335f10a427",
+    "category": "Weight Loss - Non-Vegetarian",
+    "meals": [
+      {
+        "timeOfDay": "Early Morning",
+        "items": [
+          "Warm water with lemon",
+          "Soaked almonds (5-6) & walnuts (2-3)",
+          "1 glass of fresh green juice (without sugar)"
+        ]
+      },
+      {
+        "timeOfDay": "Breakfast",
+        "items": [
+          "Grilled chicken with sautéed vegetables",
+          "Egg whites with spinach and mushrooms",
+          "Protein smoothie (spinach, cucumber, ginger, protein powder)"
+        ]
+      }
+    ]
+  },
+  {
+    "trainer": "68132b9bd09acb335f10a427",
+    "category": "Protection Snack - Weight Loss",
+    "meals": [
+      {
+        "timeOfDay": "Protection Snack (Drink)",
+        "items": [
+          "Green smoothie (spinach, cucumber, apple, ginger)",
+          "Protein shake (plant-based protein, almond milk)",
+          "Low-fat yogurt smoothie with chia seeds",
+          "Coconut water with mint"
+        ]
+      }
+    ]
+  },
+  {
+    "trainer": "68132b9bd09acb335f10a427",
+    "category": "Protection Snack - Weight Gain",
+    "meals": [
+      {
+        "timeOfDay": "Protection Snack (Drink)",
+        "items": [
+          "Peanut butter smoothie with banana and almond milk",
+          "Chocolate protein shake (plant-based protein, almond milk)",
+          "Avocado smoothie with coconut milk",
+          "High-calorie smoothie with oats, peanut butter, and almond milk"
+        ]
+      }
+    ]
+  }
+]

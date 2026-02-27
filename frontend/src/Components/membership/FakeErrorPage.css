@@ -1,0 +1,35 @@
+.fake-error-container {
+    text-align: center;
+    padding: 80px 20px;
+    color: #c0392b;
+    background: #fdfdfd;
+}
+
+.fake-error-container h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.fake-error-container p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.error-subtext {
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+.back-btn {
+    background: #c0392b;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    background: #e74c3c;
+}

@@ -1,0 +1,64 @@
+[
+    {
+        "plan": "1-month",
+        "title": "1 Month Membership",
+        "description": "Get access to all features for 1 month. Perfect for a short-term experience.",
+        "duration": 1,
+        "price": 0,
+        "personalTrainerAvailable": true,
+        "personalTrainerCharge": 0,
+        "discount": "0%",
+        "benefits": [
+            "Access to all diet plans",
+            "Personalized diet support"
+        ]
+    },
+    {
+        "plan": "3-month",
+        "title": "3 Months Membership",
+        "description": "Get access to all features for 3 months. Perfect for a short-term commitment.",
+        "duration": 3,
+        "price": 2614,
+        "personalTrainerAvailable": true,
+        "personalTrainerCharge": 1500,
+        "discount": "5%",
+        "benefits": [
+            "Access to all diet plans",
+            "Personalized diet support",
+            "Weekly check-ins"
+        ]
+    },
+    {
+        "plan": "6-month",
+        "title": "6 Months Membership",
+        "description": "Enjoy all our features for 6 months with additional discounts and perks.",
+        "duration": 6,
+        "price": 4358,
+        "personalTrainerAvailable": true,
+        "personalTrainerCharge": 2500,
+        "discount": "10%",
+        "benefits": [
+            "Access to all diet plans",
+            "Personalized diet support",
+            "Weekly check-ins",
+            "Exclusive discounts on supplements"
+        ]
+    },
+    {
+        "plan": "1-year",
+        "title": "1 Year Membership",
+        "description": "Get 1 year of full access with premium benefits and priority support.",
+        "duration": 12,
+        "price": 7845,
+        "personalTrainerAvailable": true,
+        "personalTrainerCharge": 4000,
+        "discount": "15%",
+        "benefits": [
+            "Access to all diet plans",
+            "Personalized diet support",
+            "Weekly check-ins",
+            "Exclusive discounts on supplements",
+            "Priority customer support"
+        ]
+    }
+]

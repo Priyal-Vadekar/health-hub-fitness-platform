@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Terry Kessler",
+    "message": "Great experience! The trainers are amazing, and the facility is top-notch.",
+    "image": "/Images/john.jpg"
+  },
+  {
+    "name": "Ms. Angel Labadie",
+    "message": "Highly recommend! The staff is friendly and the training programs are well-structured.",
+    "image": "/Images/amita.jpg"
+  },
+  {
+    "name": "Chad Jones",
+    "message": "The best place for fitness lovers. Amazing environment and great equipment!",
+    "image": "/Images/jony.jpg"
+  }
+]

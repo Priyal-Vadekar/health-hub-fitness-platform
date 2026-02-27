@@ -1,0 +1,106 @@
+[
+  {
+    "user": "6811243eb047376f1e17b60b",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2020-03-18T00:00:00Z",
+    "endDate": "2020-04-18T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b60c",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2019-05-11T00:00:00Z",
+    "endDate": "2019-06-11T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b60d",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2018-06-29T00:00:00Z",
+    "endDate": "2018-07-29T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b60e",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2017-09-01T00:00:00Z",
+    "endDate": "2017-10-01T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b60f",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2016-11-14T00:00:00Z",
+    "endDate": "2016-12-14T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b610",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2021-12-03T00:00:00Z",
+    "endDate": "2022-01-03T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b611",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2021-12-03T00:00:00Z",
+    "endDate": "2022-01-03T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b612",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2023-07-15T00:00:00Z",
+    "endDate": "2023-08-15T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b613",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2024-05-10T00:00:00Z",
+    "endDate": "2024-06-10T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "6811243eb047376f1e17b614",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2025-03-01T00:00:00Z",
+    "endDate": "2025-03-31T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": true
+  },
+  {
+    "user": "68112ebcface9c7d529c8cda",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2022-09-22T00:00:00Z",
+    "endDate": "2022-10-22T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "68132b9bd09acb335f10a427",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2022-09-22T00:00:00Z",
+    "endDate": "2022-10-22T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  },
+  {
+    "user": "681333e6d09acb335f10a4d2",
+    "membershipPlan": "6817cf897bf22910ce24517a",
+    "startDate": "2022-09-22T00:00:00Z",
+    "endDate": "2022-10-22T00:00:00Z",
+    "totalPrice": 0,
+    "isActive": false
+  }
+]
