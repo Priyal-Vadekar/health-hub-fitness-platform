@@ -2,30 +2,49 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 export const About = () => {
-  
-  const [getdata, setData] = useState([]);
-  const [getdata1, setData1] = useState([]);
+  const [stats, setStats] = useState({ members: 0, staff: 0, dietitians: 0 });
+  const [statsLoading, setStatsLoading] = useState(true);
   const [staffData, setStaffData] = useState([]);
-  const [getbookdata, setBookData] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(true);
 
-  const [testimonials, setTestimonials] = useState([]);
-  const [users, setUsers] = useState([]);
+  // ── Bug 1 Fix: Use /public-stats instead of /api/users ──────────────────
+  // Previously fetched users into `users` state but computed counts
+  // from `getdata`, `getbookdata`, `staffData` which were never fetched → always 0
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/users") // API returning all users
-      .then((res) => setUsers(res.data))
-      .catch((error) => console.log(error));
+      .get("http://localhost:5000/api/users/public-stats")
+      .then((res) => {
+        setStats({
+          members: res.data.members || 0,
+          staff: res.data.staff || 0,
+          dietitians: res.data.dietitians || 0,
+        });
+      })
+      .catch((err) => console.error("Error fetching stats:", err))
+      .finally(() => setStatsLoading(false));
   }, []);
 
- 
-  const totalMembers = getdata.filter(user => user.role === "Member").length;
-  const totalStaff = staffData.filter(user => user.role === "Staff" || user.role === "Trainer").length;
-  const totalDietitians = getbookdata.filter(user => user.role === "RD" || user.role === "RDN").length;
+  // ── Bug 2 Fix: Actually fetch staff data ─────────────────────────────────
+  // Previously staffData was declared but no useEffect ever fetched it → always []
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/staff")
+      .then((res) => {
+        const list = res.data.data || res.data;
+        setStaffData(Array.isArray(list) ? list : []);
+      })
+      .catch((err) => {
+        console.error("Error fetching staff:", err);
+        setStaffData([]);
+      })
+      .finally(() => setStaffLoading(false));
+  }, []);
 
   return (
     <div>
       <div className="bg-white p-0">
-        {/* Page Header Start */}
+
+        {/* ── Page Header ───────────────────────────────────────────────── */}
         <div
           className="container-fluid page-header mb-5 p-0"
           style={{ backgroundImage: "url(/Images/About-us.jpg)" }}
@@ -38,9 +57,9 @@ export const About = () => {
             </div>
           </div>
         </div>
-        {/* Page Header End */}
+        {/* ── Page Header End ───────────────────────────────────────────── */}
 
-        {/* About Start */}
+        {/* ── About + Stats ─────────────────────────────────────────────── */}
         <div className="container-xxl py-5">
           <div className="container">
             <div className="row g-5 align-items-center">
@@ -50,19 +69,21 @@ export const About = () => {
                   <span className="text-color text-uppercase">Health Hub</span>
                 </h1>
                 <p className="mb-4">
-                  Explore various fitness programs with our expert trainers.In
+                  Explore various fitness programs with our expert trainers. In
                   Gymnasiums, apparatus such as barbells, bumper plates,
                   kettlebells, dumbbells, resistance bands, jumping boards,
                   running paths, tennis balls, cricket fields, and fencing areas
                   are used for exercises.
                 </p>
+
+                {/* ── Stats Cards ─────────────────────────────────────── */}
                 <div className="row g-3 pb-4">
                   <div className="col-sm-4 wow fadeIn" data-wow-delay="0.1s">
                     <div className="border rounded p-1 card-hover-effect">
                       <div className="border rounded text-center p-4">
-                        <i className="fa fa-users-cog fa-2x text-color mb-2" />
-                        <h2 className="mb-1" data-toggle="counter-up">
-                          {totalMembers}
+                        <i className="fa fa-users fa-2x text-color mb-2" />
+                        <h2 className="mb-1">
+                          {statsLoading ? "..." : stats.members}
                         </h2>
                         <p className="mb-0">Members</p>
                       </div>
@@ -71,56 +92,59 @@ export const About = () => {
                   <div className="col-sm-4 wow fadeIn" data-wow-delay="0.3s">
                     <div className="border rounded p-1 card-hover-effect">
                       <div className="border rounded text-center p-4">
-                        <i className="fa fa-users-cog fa-2x text-color mb-2" />
-                        <h2 className="mb-1" data-toggle="counter-up">
-                          {totalStaff}
+                        <i className="fa fa-user-tie fa-2x text-color mb-2" />
+                        <h2 className="mb-1">
+                          {statsLoading ? "..." : stats.staff}
                         </h2>
-                        <p className="mb-0">Staffs</p>
+                        <p className="mb-0">Staff</p>
                       </div>
                     </div>
                   </div>
                   <div className="col-sm-4 wow fadeIn" data-wow-delay="0.5s">
                     <div className="border rounded p-1 card-hover-effect">
                       <div className="border rounded text-center p-4">
-                        <i className="fa fa-users-cog fa-2x text-color mb-2" />
-                        <h2 className="mb-1" data-toggle="counter-up">
-                          {totalDietitians}
+                        <i className="fa fa-heartbeat fa-2x text-color mb-2" />
+                        <h2 className="mb-1">
+                          {statsLoading ? "..." : stats.dietitians}
                         </h2>
                         <p className="mb-0">Dietitians</p>
                       </div>
                     </div>
                   </div>
                 </div>
+                {/* ── Stats Cards End ─────────────────────────────────── */}
               </div>
+
+              {/* ── Images — fixed backslash paths to forward slashes ─── */}
               <div className="col-lg-6">
                 <div className="row g-3">
                   <div className="col-6 text-end">
                     <img
                       className="img-fluid rounded border border-dark w-75 img-effect"
-                      data-wow-delay="0.1s"
-                      src="\Images\girl.jpg"
+                      src="/Images/girl.jpg"
+                      alt="Trainer"
                       style={{ marginTop: "9%" }}
                     />
                   </div>
                   <div className="col-6 text-start">
                     <img
                       className="img-fluid rounded border border-dark w-100 img-effect"
-                      data-wow-delay="0.3s"
-                      src="\Images\OIP.jpg"
+                      src="/Images/OIP.jpg"
+                      alt="Workout"
                     />
                   </div>
                   <div className="col-6 text-end">
                     <img
                       className="img-fluid rounded border border-dark w-50 img-effect"
-                      data-wow-delay="0.5s"
-                      src="\Images\th.jpg"
+                      src="/Images/th.jpg"
+                      alt="Gym"
                     />
                   </div>
                   <div className="col-6 text-start">
                     <img
                       className="img-fluid rounded border border-dark w-75 img-effect"
-                      data-wow-delay="0.7s"
-                      src="\Images\OIP (1).jpg"
+                      src="/Images/OIP_01.jpg"
+                      alt="Health Hub"
                     />
                   </div>
                 </div>
@@ -128,21 +152,22 @@ export const About = () => {
             </div>
           </div>
         </div>
-        {/* About End */}
+        {/* ── About + Stats End ─────────────────────────────────────────── */}
 
-        {/*More info Start*/}
+        {/* ── More Info ─────────────────────────────────────────────────── */}
         <div className="about">
           <div className="container">
             <div className="row align-items-center">
               <div className="col-lg-5 col-md-6">
                 <div className="about-img">
-                  <img src="Images\a.jpg" width={"70%"} alt="Image" />
+                  {/* Fixed backslash path */}
+                  <img src="/Images/a.jpg" width={"70%"} alt="Experience" />
                 </div>
               </div>
               <div className="col-lg-7 col-md-6">
                 <div className="section-header text-left">
                   <h1 className="mb-4">
-                    <span className=" text-uppercase">30 Year Experience</span>
+                    <span className="text-uppercase">30 Year Experience</span>
                   </h1>
                 </div>
                 <div className="about-text">
@@ -172,9 +197,9 @@ export const About = () => {
             </div>
           </div>
         </div>
-        {/*More info end*/}
+        {/* ── More Info End ─────────────────────────────────────────────── */}
 
-        {/* Team Start */}
+        {/* ── Our Team / Staff ──────────────────────────────────────────── */}
         <div className="container-xxl py-5">
           <div className="container">
             <div className="text-center wow fadeInUp" data-wow-delay="0.1s">
@@ -188,26 +213,40 @@ export const About = () => {
             </div>
             <div className="row g-4">
               <div className="row row-cols-1 row-cols-md-3 g-4">
-                {staffData.length > 0 ? (
+                {staffLoading ? (
+                  // Skeleton placeholders while loading
+                  [1, 2, 3].map((n) => (
+                    <div className="col" key={n}>
+                      <div
+                        className="card h-100"
+                        style={{ background: "#f0f0f0", minHeight: 280 }}
+                      />
+                    </div>
+                  ))
+                ) : staffData.length > 0 ? (
                   staffData.map((staff) => (
                     <div className="col" key={staff._id}>
                       <div className="card h-100 card-hover-effect">
                         <img
                           src={
                             staff.image
-                              ? `Images/${staff.image}`
-                              : "Images/default.jpg"
+                              ? staff.image.startsWith("http")
+                                ? staff.image            // full URL → use as-is
+                                : `/Images/${staff.image}` // filename → prepend path
+                              : "/Images/user_default.jpg"
                           }
                           className="card-img-top"
                           alt={staff.user?.name || "Staff Member"}
+                          style={{ height: 220, objectFit: "cover" }}
+                          onError={(e) => { e.target.src = "/Images/user_default.jpg"; }}
                         />
                         <div className="card-body">
                           <h5 className="card-title">
                             {staff.user?.name || "Unnamed Staff"}
                           </h5>
                           <p className="card-text">
-                            <strong>{staff.role}</strong> -{" "}
-                            {staff.specialty || "General Staff"}
+                            <strong>{staff.role}</strong>
+                            {staff.specialty ? ` — ${staff.specialty}` : ""}
                           </p>
                           <p className="card-text">{staff.description}</p>
                         </div>
@@ -215,14 +254,14 @@ export const About = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center">Loading staff data...</p>
+                  <p className="text-center w-100">No staff members found.</p>
                 )}
               </div>
             </div>
           </div>
         </div>
-        {/* Team End */}
-        {/* Back to Top */}
+        {/* ── Our Team End ──────────────────────────────────────────────── */}
+
         <a href="#" className="btn btn-lg btn-color btn-lg-square back-to-top">
           <i className="bi bi-arrow-up" />
         </a>
@@ -230,3 +269,5 @@ export const About = () => {
     </div>
   );
 };
+
+export default About;

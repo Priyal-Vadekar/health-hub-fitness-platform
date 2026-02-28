@@ -1,6 +1,7 @@
+// frontend/src/Components/Admin/Feedback.js
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Button, Dropdown, DropdownButton, Form, Modal } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import { jsPDF } from "jspdf";
@@ -30,21 +31,10 @@ const FeedbackList = () => {
       if (response.data) {
         setFeedbacks(response.data);
       }
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching testimonials:", error);
+    } finally {
       setLoading(false);
-    }
-  };
-
-  const toggleStatus = async (id, currentStatus) => {
-    try {
-      await axios.put(`http://localhost:5000/api/testimonials/${id}/status`, {
-        status: !currentStatus,
-      });
-      fetchFeedbacks();
-    } catch (err) {
-      console.error("Status update failed", err);
     }
   };
 
@@ -60,27 +50,22 @@ const FeedbackList = () => {
     });
   };
 
-  // Open the edit modal and set the current feedback
   const openEditModal = (feedback) => {
     setCurrentFeedback(feedback);
     setShowEditModal(true);
   };
 
-  // Close the edit modal
   const closeEditModal = () => {
     setShowEditModal(false);
     setCurrentFeedback(null);
   };
 
-  // Handle status update in the modal
   const updateStatus = async () => {
     if (currentFeedback) {
       try {
         await axios.put(
           `http://localhost:5000/api/testimonials/${currentFeedback._id}/status`,
-          {
-            status: currentFeedback.active,
-          }
+          { status: currentFeedback.active }
         );
         fetchFeedbacks();
         closeEditModal();
@@ -90,7 +75,6 @@ const FeedbackList = () => {
     }
   };
 
-  // Delete feedback
   const deleteFeedback = async () => {
     if (currentDeleteFeedback) {
       try {
@@ -104,6 +88,12 @@ const FeedbackList = () => {
       }
     }
   };
+
+  const totalPages = Math.max(1, Math.ceil(feedbacks.length / rowsPerPage));
+  const paginated = feedbacks.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   return (
     <div className="d-flex">
@@ -131,39 +121,54 @@ const FeedbackList = () => {
                         <th>Name</th>
                         <th>Message</th>
                         <th>Date</th>
-                        {/* <th>Status</th>
-                                                <th>Action</th> */}
+                        <th>Status</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {feedbacks
-                        .slice(
-                          (currentPage - 1) * rowsPerPage,
-                          currentPage * rowsPerPage
-                        )
-                        .map((fb, index) => (
+                      {paginated.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" className="text-center">No feedbacks found</td>
+                        </tr>
+                      ) : (
+                        paginated.map((fb, index) => (
                           <tr key={fb._id}>
-                            <td>
-                              {(currentPage - 1) * rowsPerPage + index + 1}
-                            </td>
-                            <td>{fb.user.name}</td>
+                            <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                            {/* ── BUG FIX: fb.user can be null if user was deleted
+                                Original: fb.user.name → crashes with TypeError
+                                Fixed: fb.user?.name with fallback               */}
+                            <td>{fb.user?.name || "Deleted User"}</td>
                             <td>{fb.message}</td>
                             <td>{new Date(fb.date).toLocaleDateString()}</td>
-                            {/* <td>
-                                                            <Form.Check
-                                                                type="switch"
-                                                                checked={fb.active}
-                                                                onChange={() => toggleStatus(fb._id, fb.active)}
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <DropdownButton variant="secondary" title="Action">
-                                                                <Dropdown.Item onClick={() => openEditModal(fb)}>Edit Status</Dropdown.Item>
-                                                                <Dropdown.Item onClick={() => { setCurrentDeleteFeedback(fb); setShowDeleteModal(true); }}>Delete</Dropdown.Item>
-                                                            </DropdownButton>
-                                                        </td> */}
+                            <td>
+                              <span className={`badge ${fb.active ? "bg-success" : "bg-secondary"}`}>
+                                {fb.active ? "Active" : "Inactive"}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="d-flex gap-2 justify-content-center">
+                                <Button
+                                  variant="outline-warning"
+                                  size="sm"
+                                  onClick={() => openEditModal(fb)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  onClick={() => {
+                                    setCurrentDeleteFeedback(fb);
+                                    setShowDeleteModal(true);
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </td>
                           </tr>
-                        ))}
+                        ))
+                      )}
                     </tbody>
                   </table>
 
@@ -177,40 +182,24 @@ const FeedbackList = () => {
                       className="form-control border border-secondary w-auto"
                       style={{ height: "45px" }}
                     >
-                      {[2, 5, 10, 15, 20].map((n) => (
-                        <option key={n} value={n}>
-                          Show {n} rows
-                        </option>
+                      {[5, 10, 15, 20].map((n) => (
+                        <option key={n} value={n}>Show {n} rows</option>
                       ))}
                     </Form.Select>
                     <div>
                       <Button
                         variant="secondary"
-                        onClick={() =>
-                          setCurrentPage(Math.max(currentPage - 1, 1))
-                        }
+                        onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                         disabled={currentPage === 1}
                         className="me-2"
                       >
                         Previous
                       </Button>
-                      <span>
-                        Page {currentPage} of{" "}
-                        {Math.ceil(feedbacks.length / rowsPerPage)}
-                      </span>
+                      <span>Page {currentPage} of {totalPages}</span>
                       <Button
                         variant="secondary"
-                        onClick={() =>
-                          setCurrentPage((prev) =>
-                            prev < Math.ceil(feedbacks.length / rowsPerPage)
-                              ? prev + 1
-                              : prev
-                          )
-                        }
-                        disabled={
-                          currentPage ===
-                          Math.ceil(feedbacks.length / rowsPerPage)
-                        }
+                        onClick={() => setCurrentPage((p) => p < totalPages ? p + 1 : p)}
+                        disabled={currentPage === totalPages}
                         className="ms-2"
                       >
                         Next
@@ -224,29 +213,23 @@ const FeedbackList = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
-      <Modal
-        show={showEditModal}
-        onHide={closeEditModal}
-        centered
-        className="custom-scroll"
-      >
+      {/* Edit Status Modal */}
+      <Modal show={showEditModal} onHide={closeEditModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Status</Modal.Title>
+          <Modal.Title>Edit Feedback Status</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {currentFeedback && (
             <Form>
-              <Form.Group controlId="formFeedbackName">
+              <Form.Group className="mb-3">
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={currentFeedback.user.name}
+                  value={currentFeedback.user?.name || "Deleted User"}
                   disabled
                 />
               </Form.Group>
-
-              <Form.Group controlId="formFeedbackMessage">
+              <Form.Group className="mb-3">
                 <Form.Label>Message</Form.Label>
                 <Form.Control
                   as="textarea"
@@ -255,8 +238,7 @@ const FeedbackList = () => {
                   disabled
                 />
               </Form.Group>
-
-              <Form.Group controlId="formFeedbackDate">
+              <Form.Group className="mb-3">
                 <Form.Label>Date</Form.Label>
                 <Form.Control
                   type="text"
@@ -264,18 +246,13 @@ const FeedbackList = () => {
                   disabled
                 />
               </Form.Group>
-
-              <Form.Group controlId="formFeedbackStatus">
-                <Form.Label>Status</Form.Label>
+              <Form.Group className="mb-3">
                 <Form.Check
                   type="switch"
-                  label="Active"
+                  label="Active (shown on homepage)"
                   checked={currentFeedback.active}
                   onChange={(e) =>
-                    setCurrentFeedback({
-                      ...currentFeedback,
-                      active: e.target.checked,
-                    })
+                    setCurrentFeedback({ ...currentFeedback, active: e.target.checked })
                   }
                 />
               </Form.Group>
@@ -283,24 +260,22 @@ const FeedbackList = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={updateStatus}>
-            Save Changes
-          </Button>
+          <Button variant="secondary" onClick={closeEditModal}>Cancel</Button>
+          <Button variant="primary" onClick={updateStatus}>Save Changes</Button>
         </Modal.Footer>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {currentDeleteFeedback && (
-            <p>
-              Are you sure you want to delete the testimonial from{" "}
-              {currentDeleteFeedback.user.name}?
-            </p>
-          )}
+          {/* ── BUG FIX: same optional chaining here for the delete confirmation */}
+          <p>
+            Are you sure you want to delete the feedback from{" "}
+            <strong>{currentDeleteFeedback?.user?.name || "this user"}</strong>?
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>

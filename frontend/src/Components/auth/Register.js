@@ -61,7 +61,7 @@ const Register = () => {
       );
       toast.success(
         response.data.message ||
-          "Registration successful! Please check your email for the verification code."
+        "Registration successful! Please check your email for the verification code."
       );
       setRegisteredEmail(email); // store email to pass to modal
       setShowVerifyModal(true); // show popup
@@ -79,9 +79,8 @@ const Register = () => {
 
       const response = await axios.post(
         "http://localhost:5000/api/auth/google-login",
-        {
-          token: idToken, // ✅ Send Firebase ID token
-        }
+        { token: idToken },
+        { withCredentials: true }
       );
 
       localStorage.setItem("auth", JSON.stringify(response.data.token));

@@ -86,9 +86,8 @@ const Login = () => {
 
       const response = await axios.post(
         "http://localhost:5000/api/auth/google-login",
-        {
-          token: idToken,
-        }
+        { token: idToken },
+        { withCredentials: true }
       );
 
       localStorage.setItem("auth", JSON.stringify(response.data.token));

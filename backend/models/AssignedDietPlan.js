@@ -14,7 +14,7 @@ const AssignedDietPlanSchema = new mongoose.Schema({
   },
   dietPlan: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "DietPlan", // Reference to a created diet plan
+    ref: "diet_plans", // Reference to a created diet plan
     required: true,
   },
   assignedAt: {
