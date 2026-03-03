@@ -4,12 +4,13 @@ const crypto = require("crypto");
 const razorpay = require("../config/razorpay");
 const UserMembership = require("../models/UserMembership");
 const MembershipPlan = require("../models/MembershipPlan");
+const TrainerBooking = require("../models/TrainerBooking");
 const Payment = require("../models/Payment");
 const User = require("../models/User");
 
 /**
  * POST /api/razorpay/create-order
- * Creates a Razorpay order for membership payment
+ * Creates a Razorpay order for MEMBERSHIP payment
  */
 exports.createRazorpayOrder = async (req, res) => {
   try {
@@ -20,58 +21,37 @@ exports.createRazorpayOrder = async (req, res) => {
       return res.status(400).json({ message: "membershipPlanId is required" });
     }
 
-    // Find membership plan
     const membershipPlan = await MembershipPlan.findById(membershipPlanId);
-    if (!membershipPlan) {
-      return res.status(404).json({ message: "Membership plan not found" });
-    }
+    if (!membershipPlan) return res.status(404).json({ message: "Membership plan not found" });
 
-    // Find user
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Calculate price
     let calculatedPrice = membershipPlan.price;
-    
-    // Add personal trainer charge if selected
     if (withPersonalTrainer && membershipPlan.personalTrainerCharge) {
       calculatedPrice += membershipPlan.personalTrainerCharge;
     }
-    
-    // Apply discount
     if (membershipPlan.discount) {
       const discountStr = membershipPlan.discount.toString().trim();
-      const hasPercent = discountStr.includes('%');
-      const numericValue = parseFloat(discountStr.replace(/[^0-9.]/g, ''));
-      
+      const hasPercent = discountStr.includes("%");
+      const numericValue = parseFloat(discountStr.replace(/[^0-9.]/g, ""));
       if (!isNaN(numericValue)) {
-        if (hasPercent) {
-          calculatedPrice = calculatedPrice * (1 - numericValue / 100);
-        } else if (numericValue <= 100) {
+        if (hasPercent || numericValue <= 100) {
           calculatedPrice = calculatedPrice * (1 - numericValue / 100);
         } else {
           calculatedPrice = Math.max(0, calculatedPrice - numericValue);
         }
       }
     }
-    
     calculatedPrice = Math.round(calculatedPrice * 100) / 100;
-
-    // Calculate amount in paise (₹3420 => 342000 paise)
-    // Razorpay requires amount in smallest currency unit (paise for INR)
     const amountInPaise = Math.round(calculatedPrice * 100);
     const currency = process.env.RAZORPAY_CURRENCY || "INR";
-
-    // Create Razorpay order
-    // Note: receipt must be ≤ 40 characters
     const shortReceipt = `rcpt_${Date.now()}`;
-    
+
     const order = await razorpay.orders.create({
-      amount: amountInPaise, // Amount in paise
+      amount: amountInPaise,
       currency,
-      receipt: shortReceipt, // Keep it short (≤ 40 chars)
+      receipt: shortReceipt,
       notes: {
         userId: userId.toString(),
         membershipPlanId: membershipPlan._id.toString(),
@@ -80,8 +60,6 @@ exports.createRazorpayOrder = async (req, res) => {
       },
     });
 
-
-    // Save pending payment record in MongoDB (without userMembership yet)
     await Payment.create({
       user: userId,
       gateway: "razorpay",
@@ -93,24 +71,21 @@ exports.createRazorpayOrder = async (req, res) => {
       provider: {
         providerId: order.id,
         transactionId: order.id,
-        razorpay: {
-          orderId: order.id,
-        },
+        razorpay: { orderId: order.id },
       },
       metadata: {
         membershipPlanId: membershipPlan._id.toString(),
         withPersonalTrainer,
-        receipt: shortReceipt
+        receipt: shortReceipt,
       },
     });
 
-    // Return order details to frontend
     res.status(200).json({
       success: true,
       orderId: order.id,
       amount: amountInPaise,
       currency,
-      keyId: process.env.RAZORPAY_KEY_ID, // Safe to send key_id to frontend
+      keyId: process.env.RAZORPAY_KEY_ID,
       membership: {
         title: membershipPlan.title,
         duration: membershipPlan.duration,
@@ -119,197 +94,193 @@ exports.createRazorpayOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Razorpay createOrder error:", error);
-    res.status(500).json({ 
-      message: "Failed to create Razorpay order", 
-      error: error.message 
+    res.status(500).json({ message: "Failed to create Razorpay order", error: error.message });
+  }
+};
+
+/**
+ * POST /api/razorpay/create-trainer-order
+ * Creates a Razorpay order for TRAINER SESSION payment
+ * Body: { bookingId, amount }
+ * After payment, frontend calls POST /api/bookings/confirm with { bookingId, paymentId }
+ */
+exports.createTrainerOrder = async (req, res) => {
+  try {
+    const { bookingId, amount } = req.body;
+    const userId = req.user.id;
+
+    if (!bookingId || !amount) {
+      return res.status(400).json({ success: false, message: "bookingId and amount are required" });
+    }
+
+    // Verify booking belongs to this member and is still pending
+    const booking = await TrainerBooking.findById(bookingId)
+      .populate("trainer", "name email")
+      .populate("member", "name email");
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+    if (booking.member._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "Not authorized for this booking" });
+    }
+    if (booking.status !== "pending") {
+      return res.status(400).json({ success: false, message: "Booking is not pending" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    // Amount in paise
+    const amountInPaise = Math.round(parseFloat(amount) * 100);
+    const currency = process.env.RAZORPAY_CURRENCY || "INR";
+    const shortReceipt = `ts_${Date.now()}`; // ts = trainer session
+
+    const order = await razorpay.orders.create({
+      amount: amountInPaise,
+      currency,
+      receipt: shortReceipt,
+      notes: {
+        userId: userId.toString(),
+        bookingId: bookingId.toString(),
+        trainerName: booking.trainer?.name || "",
+        type: "trainer_session",
+      },
     });
+
+    // Save pending payment record linked to this booking
+    const payment = await Payment.create({
+      user: userId,
+      gateway: "razorpay",
+      method: "razorpay",
+      amount: parseFloat(amount),
+      currency,
+      paymentMethod: "Razorpay",
+      status: "Pending",
+      provider: {
+        providerId: order.id,
+        transactionId: order.id,
+        razorpay: { orderId: order.id },
+      },
+      metadata: {
+        bookingId: bookingId.toString(),
+        type: "trainer_session",
+        receipt: shortReceipt,
+      },
+    });
+
+    // Link payment record to booking (optional pre-link)
+    booking.payment = payment._id;
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      orderId: order.id,
+      amount: amountInPaise,
+      currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
+    });
+  } catch (error) {
+    console.error("Razorpay createTrainerOrder error:", error);
+    res.status(500).json({ success: false, message: "Failed to create Razorpay order", error: error.message });
   }
 };
 
 /**
  * POST /api/razorpay/webhook
  * Handles Razorpay webhook events
- * Verifies signature and updates payment status
  */
 exports.handleRazorpayWebhook = async (req, res) => {
   try {
     const signature = req.headers["x-razorpay-signature"];
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
-    if (!signature) {
-      return res.status(400).json({ message: "Missing signature header" });
-    }
+    if (!signature) return res.status(400).json({ message: "Missing signature header" });
+    if (!secret) return res.status(500).json({ message: "Webhook secret not configured" });
 
-    if (!secret) {
-      return res.status(500).json({ message: "Webhook secret not configured" });
-    }
-
-    // req.body is a Buffer when using express.raw()
-    // Convert to string for signature verification
-    const rawBody = req.body.toString('utf8');
-
-    // Verify signature using HMAC SHA256
-    const generatedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(rawBody)
-      .digest("hex");
+    const rawBody = req.body.toString("utf8");
+    const generatedSignature = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
 
     if (generatedSignature !== signature) {
       console.error("Razorpay webhook: Invalid signature");
       return res.status(400).json({ message: "Invalid signature" });
     }
 
-    // Parse body as JSON for processing
     const payload = JSON.parse(rawBody);
     const event = payload.event;
 
-
-    // Handle payment.captured event
     if (event === "payment.captured") {
       const paymentEntity = payload.payload.payment.entity;
-      const orderId = paymentEntity.order_id;
-      const paymentId = paymentEntity.id;
+      const razorpayOrderId = paymentEntity.order_id;
+      const razorpayPaymentId = paymentEntity.id;
 
-      // Find payment record by Razorpay order ID
-      const payment = await Payment.findOne({ "provider.razorpay.orderId": orderId });
-
+      const payment = await Payment.findOne({ "provider.razorpay.orderId": razorpayOrderId });
       if (payment && payment.status === "Pending") {
-        // Create UserMembership NOW (after successful payment)
-        const membershipPlanId = payment.metadata.membershipPlanId;
-        const withPersonalTrainer = payment.metadata.withPersonalTrainer === 'true' || payment.metadata.withPersonalTrainer === true;
+        const meta = payment.metadata || {};
 
-        const userMembership = await UserMembership.create({
-          user: payment.user,
-          membershipPlan: membershipPlanId,
-          withPersonalTrainer,
-          isActive: true, // Activate immediately since payment succeeded
-        });
-
-          // Update payment
+        if (meta.type === "trainer_session" && meta.bookingId) {
+          // Confirm the trainer booking
+          const booking = await TrainerBooking.findById(meta.bookingId);
+          if (booking && booking.status === "pending") {
+            booking.status = "confirmed";
+            booking.payment = payment._id;
+            await booking.save();
+          }
+          payment.status = "Completed";
+          payment.provider.transactionId = razorpayPaymentId;
+          payment.provider.razorpay.paymentId = razorpayPaymentId;
+          payment.paymentDate = new Date();
+          await payment.save();
+        } else if (meta.membershipPlanId) {
+          // Membership payment
+          const withPersonalTrainer = meta.withPersonalTrainer === "true" || meta.withPersonalTrainer === true;
+          const userMembership = await UserMembership.create({
+            user: payment.user,
+            membershipPlan: meta.membershipPlanId,
+            withPersonalTrainer,
+            isActive: true,
+          });
           payment.userMembership = userMembership._id;
           payment.status = "Completed";
-          payment.provider.transactionId = paymentId;
-          payment.provider.razorpay.paymentId = paymentId;
-          payment.provider.razorpay.signature = paymentEntity.notes?.signature || null;
+          payment.provider.transactionId = razorpayPaymentId;
+          payment.provider.razorpay.paymentId = razorpayPaymentId;
           payment.paymentDate = new Date();
-          payment.metadata = {
-            ...payment.metadata,
-            paymentEntity,
-            capturedAt: new Date().toISOString()
-          };
           await payment.save();
-      }
-    } 
-    // Handle payment.failed event
-    else if (event === "payment.failed") {
-      const paymentEntity = payload.payload.payment.entity;
-      const orderId = paymentEntity.order_id;
-      const paymentId = paymentEntity.id;
-
-      await Payment.findOneAndUpdate(
-        { "provider.razorpay.orderId": orderId },
-        {
-          status: "Failed",
-          "provider.razorpay.paymentId": paymentId,
-          metadata: { 
-            paymentEntity,
-            failedAt: new Date().toISOString()
-          }
         }
-      );
-    }
-    // Handle order.paid event (backup)
-    else if (event === "order.paid") {
-      const orderEntity = payload.payload.order.entity;
-      const orderId = orderEntity.id;
-
-      const payment = await Payment.findOne({ "provider.razorpay.orderId": orderId });
-
-      if (payment && !payment.userMembership) {
-        // Create UserMembership (backup handler)
-        const membershipPlanId = payment.metadata.membershipPlanId;
-        const withPersonalTrainer = payment.metadata.withPersonalTrainer === 'true' || payment.metadata.withPersonalTrainer === true;
-
-        const userMembership = await UserMembership.create({
-          user: payment.user,
-          membershipPlan: membershipPlanId,
-          withPersonalTrainer,
-          isActive: true,
-        });
-
-        payment.userMembership = userMembership._id;
-        payment.status = "Completed";
-        payment.paymentDate = new Date();
-        await payment.save();
       }
     }
 
-    // Respond to Razorpay
     res.status(200).json({ received: true });
   } catch (error) {
     console.error("Razorpay webhook error:", error);
-    res.status(500).json({ message: "Webhook processing error" });
+    res.status(500).json({ message: "Webhook processing failed", error: error.message });
   }
 };
 
 /**
- * POST /api/razorpay/verify-payment (Optional)
- * Manual verification endpoint for frontend
+ * POST /api/razorpay/verify-payment
+ * Manual verification (optional fallback)
  */
 exports.verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({ message: "Missing payment details" });
-    }
-
-    // Find payment first
-    const payment = await Payment.findOne({
-      "provider.razorpay.orderId": razorpay_order_id,
-    });
-
-    if (!payment) {
-      return res.status(404).json({ success: false, message: "Payment not found" });
-    }
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
     // Verify signature
-    const generated_signature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const generated = crypto
+      .createHmac("sha256", secret)
+      .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest("hex");
 
-    if (generated_signature === razorpay_signature) {
-      // Create UserMembership if not exists
-      if (!payment.userMembership) {
-        const membershipPlanId = payment.metadata.membershipPlanId;
-        const withPersonalTrainer = payment.metadata.withPersonalTrainer === 'true' || payment.metadata.withPersonalTrainer === true;
-
-        const userMembership = await UserMembership.create({
-          user: payment.user,
-          membershipPlan: membershipPlanId,
-          withPersonalTrainer,
-          isActive: true,
-        });
-
-        payment.userMembership = userMembership._id;
-      }
-
-      // Update payment record
-      payment.status = "Completed";
-      payment.provider.transactionId = razorpay_payment_id;
-      payment.provider.razorpay.paymentId = razorpay_payment_id;
-      payment.provider.razorpay.signature = razorpay_signature;
-      payment.paymentDate = new Date();
-      await payment.save();
-
-      return res.status(200).json({ success: true, verified: true });
-    } else {
+    if (generated !== razorpaySignature) {
       return res.status(400).json({ success: false, message: "Invalid signature" });
     }
+
+    const payment = await Payment.findOne({ "provider.razorpay.orderId": razorpayOrderId });
+    if (!payment) return res.status(404).json({ success: false, message: "Payment not found" });
+
+    res.status(200).json({ success: true, paid: payment.status === "Completed", payment });
   } catch (error) {
-    console.error("Payment verification error:", error);
-    res.status(500).json({ message: "Verification failed", error: error.message });
+    res.status(500).json({ success: false, message: "Verification failed", error: error.message });
   }
 };
-

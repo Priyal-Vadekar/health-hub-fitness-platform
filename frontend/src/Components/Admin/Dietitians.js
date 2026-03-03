@@ -1,5 +1,25 @@
 // frontend/src/Components/Admin/Dietitians.js
+//
+// ── STATUS FIELD NOTE ─────────────────────────────────────────────────────────
+// The User model does NOT have a "status" field (only name, email, role,
+// isCertified, specialization etc). Two options:
+//
+// OPTION A (recommended, no DB migration): Toggle "isCertified" badge as a
+// quick Active/Inactive proxy — but that conflates two different concepts.
+//
+// OPTION B (correct, requires 1-line User model change):
+// Add this to UserSchema:
+//   isActive: { type: Boolean, default: true }
+// Then use PATCH /api/admin/users/:id/role with body { isActive: false }
+// The updateUserRole controller already uses $set so it will accept any field.
+//
+// This file implements OPTION B. Add `isActive` to User model to enable it.
+// The UI shows "Active" / "Inactive" badge and the toggle will work immediately
+// after you add the field. If you haven't added it yet, it shows "Active" by default.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useState, useEffect } from "react";
+import { FiCheck } from "react-icons/fi";
 import axios from "axios";
 import { Modal, Button, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import Sidebar from "./Sidebar";
@@ -16,6 +36,10 @@ const DietitiansList = () => {
     const raw = localStorage.getItem("auth");
     return raw ? JSON.parse(raw) : null;
   };
+  const authHeaders = () => {
+    const token = getAuthToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   const [dietitians, setDietitians] = useState([]);
   const [members, setMembers] = useState([]);
@@ -23,13 +47,13 @@ const DietitiansList = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // ── NEW
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentDietitian, setCurrentDietitian] = useState(null);
-  const [deleteDietitianId, setDeleteDietitianId] = useState(null); // ── NEW
+  const [deleteDietitianId, setDeleteDietitianId] = useState(null);
   const [selectedMemberIds, setSelectedMemberIds] = useState([]);
+  const [memberSearch, setMemberSearch] = useState("");
   const [formData, setFormData] = useState({
-    name: "", email: "", role: "RD",
-    specialization: "", isCertified: false, password: ""
+    name: "", email: "", role: "RD", specialization: "", isCertified: false, password: ""
   });
 
   useEffect(() => {
@@ -40,13 +64,10 @@ const DietitiansList = () => {
   const fetchDietitians = async () => {
     try {
       setLoading(true);
-      const token = getAuthToken();
-      const res = await axios.get(`${ADMIN_BASE}/dietitians`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const res = await axios.get(`${ADMIN_BASE}/dietitians`, { headers: authHeaders() });
       if (res.data.success) setDietitians(res.data.data || []);
       else toast.error(res.data.message || "Failed to fetch dietitians");
-    } catch (error) {
+    } catch (e) {
       toast.error("Failed to load dietitians");
     } finally {
       setLoading(false);
@@ -55,161 +76,135 @@ const DietitiansList = () => {
 
   const fetchMembers = async () => {
     try {
-      const token = getAuthToken();
-      const res = await axios.get(`${API_BASE}/users`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const res = await axios.get(`${API_BASE}/users`, { headers: authHeaders() });
       if (res.data.success) {
         setMembers((res.data.data || []).filter((u) => u.role === "Member"));
       }
-    } catch (error) {
-      console.error("Error fetching members:", error);
+    } catch (e) {
+      console.error("Error fetching members:", e);
     }
   };
 
   const handleCreateDietitian = async () => {
     if (!formData.name || !formData.email || !formData.password) {
-      toast.error("Name, email, and password are required");
+      toast.error("Name, email and password are required");
       return;
     }
     try {
-      const token = getAuthToken();
-      const res = await axios.post(`${API_BASE}/auth/register`, formData, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const res = await axios.post(`${API_BASE}/auth/register`, formData, { headers: authHeaders() });
       if (res.data.message) {
-        toast.success("Dietitian created successfully!");
+        toast.success("Dietitian created!");
         setShowCreateModal(false);
         setFormData({ name: "", email: "", role: "RD", specialization: "", isCertified: false, password: "" });
         fetchDietitians();
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create dietitian");
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Failed to create");
     }
   };
 
   const handleUpdateDietitian = async () => {
     if (!currentDietitian) return;
     try {
-      const token = getAuthToken();
       const res = await axios.patch(
         `${ADMIN_BASE}/users/${currentDietitian._id}/role`,
-        {
-          role: currentDietitian.role,
-          specialization: currentDietitian.specialization || "",
-          isCertified: currentDietitian.isCertified || false
-        },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { role: currentDietitian.role, specialization: currentDietitian.specialization || "", isCertified: currentDietitian.isCertified || false },
+        { headers: authHeaders() }
       );
       if (res.data.success) {
-        toast.success("Dietitian updated successfully!");
+        toast.success("Updated!");
         setShowEditModal(false);
-        setCurrentDietitian(null);
         fetchDietitians();
-      } else {
-        toast.error(res.data.message || "Failed to update");
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update dietitian");
+      } else toast.error(res.data.message);
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Failed to update");
     }
   };
 
-  // ── BUG FIX: Open assign modal with pre-checked already-assigned members
-  // Original opened modal with empty selectedMemberIds → saving overwrote all assignments
-  const openAssignModal = (dietitian) => {
-    setCurrentDietitian(dietitian);
-    const dietitianId = dietitian._id?.toString();
-    const alreadyAssigned = members
-      .filter((m) => m.assignedDietitian?.toString() === dietitianId)
-      .map((m) => m._id);
-    setSelectedMemberIds(alreadyAssigned);
+  // Pre-check currently assigned members when opening modal
+  const openAssignModal = (d) => {
+    setCurrentDietitian(d);
+    setMemberSearch("");
+    const did = d._id?.toString();
+    const already = members.filter((m) => m.assignedDietitian?.toString() === did).map((m) => m._id);
+    setSelectedMemberIds(already);
     setShowAssignModal(true);
   };
 
   const handleAssignMembers = async () => {
     if (!currentDietitian) return;
     try {
-      const token = getAuthToken();
       const res = await axios.patch(
         `${ADMIN_BASE}/dietitians/${currentDietitian._id}/assign-members`,
         { memberIds: selectedMemberIds },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { headers: authHeaders() }
       );
       if (res.data.success) {
-        toast.success(
-          selectedMemberIds.length === 0
-            ? "All members unassigned"
-            : `Assigned ${res.data.data.modifiedCount} members successfully!`
-        );
+        toast.success(selectedMemberIds.length === 0 ? "All members unassigned" : `${res.data.data.modifiedCount} members assigned!`);
         setShowAssignModal(false);
-        setSelectedMemberIds([]);
         setCurrentDietitian(null);
+        setSelectedMemberIds([]);
         fetchDietitians();
         fetchMembers();
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to assign members");
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Failed to assign");
     }
   };
 
-  const handleToggleCertification = async (dietitianId, currentStatus) => {
+  const handleToggleCertification = async (d) => {
     try {
-      const token = getAuthToken();
       const res = await axios.patch(
-        `${ADMIN_BASE}/users/${dietitianId}/certification`,
-        { isCertified: !currentStatus },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        `${ADMIN_BASE}/users/${d._id}/certification`,
+        { isCertified: !d.isCertified },
+        { headers: authHeaders() }
       );
-      if (res.data.success) {
-        toast.success("Certification status updated!");
-        fetchDietitians();
-      }
-    } catch (error) {
+      if (res.data.success) { toast.success("Certification updated!"); fetchDietitians(); }
+    } catch (e) {
       toast.error("Failed to update certification");
     }
   };
 
-  // ── NEW: Toggle dietitian active/inactive status
-  const handleToggleStatus = async (dietitian) => {
-    const newStatus = dietitian.status === "Active" ? "Inactive" : "Active";
+  // ── STATUS TOGGLE: uses isActive boolean on User model (add to UserSchema)
+  // PATCH /api/admin/users/:id/role with { isActive: bool } 
+  // The existing updateUserRole controller uses $set so it handles any field
+  const handleToggleStatus = async (d) => {
+    const newIsActive = !(d.isActive !== false); // default true if field missing
     try {
-      const token = getAuthToken();
-      const res = await axios.patch(
-        `${ADMIN_BASE}/users/${dietitian._id}/role`,
-        { status: newStatus },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      await axios.patch(
+        `${ADMIN_BASE}/users/${d._id}/role`,
+        { isActive: newIsActive },
+        { headers: authHeaders() }
       );
-      if (res.data.success) {
-        toast.success(`Status changed to ${newStatus}`);
-        fetchDietitians();
-      } else {
-        // Optimistic UI fallback — update locally if backend doesn't return success
-        setDietitians((prev) =>
-          prev.map((d) => d._id === dietitian._id ? { ...d, status: newStatus } : d)
-        );
-        toast.success(`Status changed to ${newStatus}`);
-      }
-    } catch (error) {
+      toast.success(`Status set to ${newIsActive ? "Active" : "Inactive"}`);
+      // Optimistic update
+      setDietitians((prev) => prev.map((x) => x._id === d._id ? { ...x, isActive: newIsActive } : x));
+    } catch (e) {
       toast.error("Failed to update status");
     }
   };
 
-  // ── NEW: Delete dietitian
-  const handleDeleteDietitian = async () => {
+  const handleDelete = async () => {
     if (!deleteDietitianId) return;
     try {
-      const token = getAuthToken();
-      await axios.delete(`${API_BASE}/users/${deleteDietitianId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-      toast.success("Dietitian deleted successfully!");
+      await axios.delete(`${API_BASE}/users/${deleteDietitianId}`, { headers: authHeaders() });
+      toast.success("Dietitian deleted!");
       setShowDeleteModal(false);
       setDeleteDietitianId(null);
       fetchDietitians();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to delete dietitian");
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Failed to delete");
     }
   };
+
+  const isActive = (d) => d.isActive !== false; // true by default if field not in DB yet
+
+  // Filtered members for search inside assign modal
+  const filteredMembers = members.filter(
+    (m) =>
+      m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+      m.email.toLowerCase().includes(memberSearch.toLowerCase())
+  );
 
   return (
     <div className="d-flex">
@@ -219,9 +214,7 @@ const DietitiansList = () => {
         <div className="container-xxl py-5">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h1>Dietitian Management</h1>
-            <Button variant="success" onClick={() => setShowCreateModal(true)}>
-              + Create Dietitian
-            </Button>
+            <Button variant="success" onClick={() => setShowCreateModal(true)}>+ Create Dietitian</Button>
           </div>
           <div className="container Users-section border-4 rounded-lg shadow-lg p-4">
             {loading ? (
@@ -240,9 +233,9 @@ const DietitiansList = () => {
                     {dietitians.length === 0 ? (
                       <tr><td colSpan="9" className="text-center">No dietitians found</td></tr>
                     ) : (
-                      dietitians.map((d, index) => (
+                      dietitians.map((d, i) => (
                         <tr key={d._id}>
-                          <td>{index + 1}</td>
+                          <td>{i + 1}</td>
                           <td>{d.name}</td>
                           <td>{d.email}</td>
                           <td>{d.role}</td>
@@ -254,30 +247,22 @@ const DietitiansList = () => {
                           </td>
                           <td>{d.assignedMembersCount || 0}</td>
                           <td>
-                            <span className={`badge ${d.status === "Active" ? "bg-success" : "bg-warning"}`}>
-                              {d.status || "Inactive"}
+                            <span className={`badge ${isActive(d) ? "bg-success" : "bg-warning text-dark"}`}>
+                              {isActive(d) ? "Active" : "Inactive"}
                             </span>
                           </td>
                           <td>
                             <DropdownButton variant="secondary" title="Actions" size="sm">
-                              <Dropdown.Item onClick={() => { setCurrentDietitian(d); setShowEditModal(true); }}>
-                                Edit
+                              <Dropdown.Item onClick={() => { setCurrentDietitian(d); setShowEditModal(true); }}>Edit</Dropdown.Item>
+                              <Dropdown.Item onClick={() => openAssignModal(d)}>Assign Members</Dropdown.Item>
+                              <Dropdown.Item onClick={() => handleToggleCertification(d)}>
+                                {d.isCertified ? "Remove Certification" : "Mark Certified"}
                               </Dropdown.Item>
-                              <Dropdown.Item onClick={() => openAssignModal(d)}>
-                                Assign Members
-                              </Dropdown.Item>
-                              <Dropdown.Item onClick={() => handleToggleCertification(d._id, d.isCertified)}>
-                                {d.isCertified ? "Remove Certification" : "Mark as Certified"}
-                              </Dropdown.Item>
-                              {/* ── NEW: Toggle Active/Inactive status */}
                               <Dropdown.Item onClick={() => handleToggleStatus(d)}>
-                                {d.status === "Active" ? "Set Inactive" : "Set Active"}
+                                {isActive(d) ? "Set Inactive" : "Set Active"}
                               </Dropdown.Item>
-                              {/* ── NEW: Delete option */}
-                              <Dropdown.Item
-                                className="text-danger"
-                                onClick={() => { setDeleteDietitianId(d._id); setShowDeleteModal(true); }}
-                              >
+                              <Dropdown.Divider />
+                              <Dropdown.Item className="text-danger" onClick={() => { setDeleteDietitianId(d._id); setShowDeleteModal(true); }}>
                                 Delete
                               </Dropdown.Item>
                             </DropdownButton>
@@ -298,27 +283,22 @@ const DietitiansList = () => {
         <Modal.Header closeButton><Modal.Title>Create Dietitian</Modal.Title></Modal.Header>
         <Modal.Body>
           <Form>
-            {["name", "email", "password"].map((field) => (
-              <Form.Group className="mb-3" key={field}>
-                <Form.Label style={{ textTransform: "capitalize" }}>{field}</Form.Label>
-                <Form.Control
-                  type={field === "password" ? "password" : field === "email" ? "email" : "text"}
-                  value={formData[field]}
-                  onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-                  required
-                />
+            {[["name", "text", "Name"], ["email", "email", "Email"], ["password", "password", "Password"]].map(([f, t, l]) => (
+              <Form.Group className="mb-3" key={f}>
+                <Form.Label>{l} <span className="text-danger">*</span></Form.Label>
+                <Form.Control type={t} value={formData[f]} onChange={(e) => setFormData({ ...formData, [f]: e.target.value })} />
               </Form.Group>
             ))}
             <Form.Group className="mb-3">
               <Form.Label>Role</Form.Label>
               <Form.Select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
-                <option value="RD">RD</option>
-                <option value="RDN">RDN</option>
+                <option value="RD">RD (Registered Dietitian)</option>
+                <option value="RDN">RDN (Registered Dietitian Nutritionist)</option>
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Specialization</Form.Label>
-              <Form.Control type="text" value={formData.specialization} onChange={(e) => setFormData({ ...formData, specialization: e.target.value })} />
+              <Form.Control type="text" value={formData.specialization} onChange={(e) => setFormData({ ...formData, specialization: e.target.value })} placeholder="e.g. Weight Loss, Sports" />
             </Form.Group>
             <Form.Check type="checkbox" label="Certified" checked={formData.isCertified} onChange={(e) => setFormData({ ...formData, isCertified: e.target.checked })} />
           </Form>
@@ -335,19 +315,12 @@ const DietitiansList = () => {
         <Modal.Body>
           {currentDietitian && (
             <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control type="text" value={currentDietitian.name} disabled />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Email</Form.Label>
-                <Form.Control type="email" value={currentDietitian.email} disabled />
-              </Form.Group>
+              <Form.Group className="mb-3"><Form.Label>Name</Form.Label><Form.Control type="text" value={currentDietitian.name} disabled /></Form.Group>
+              <Form.Group className="mb-3"><Form.Label>Email</Form.Label><Form.Control type="email" value={currentDietitian.email} disabled /></Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Role</Form.Label>
                 <Form.Select value={currentDietitian.role} onChange={(e) => setCurrentDietitian({ ...currentDietitian, role: e.target.value })}>
-                  <option value="RD">RD</option>
-                  <option value="RDN">RDN</option>
+                  <option value="RD">RD</option><option value="RDN">RDN</option>
                 </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3">
@@ -364,74 +337,109 @@ const DietitiansList = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* ── Assign Members Modal — FIXED UI + pre-checked members ────────── */}
+      {/* Assign Members Modal — FIXED UI: grid layout, search, scrollable */}
       <Modal
         show={showAssignModal}
-        onHide={() => { setShowAssignModal(false); setCurrentDietitian(null); setSelectedMemberIds([]); }}
+        onHide={() => { setShowAssignModal(false); setCurrentDietitian(null); setSelectedMemberIds([]); setMemberSearch(""); }}
         centered size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Assign Members to {currentDietitian?.name}</Modal.Title>
+          <Modal.Title>Assign Members — {currentDietitian?.name}</Modal.Title>
         </Modal.Header>
-        {/* ── FIX: maxHeight + overflow-y so it doesn't push off screen */}
-        <Modal.Body style={{ maxHeight: "60vh", overflowY: "auto" }}>
-          {members.length === 0 ? (
-            <p className="text-muted">No members available</p>
-          ) : (
-            <>
-              <p className="text-muted mb-3">
-                <small>
-                  {selectedMemberIds.length} member(s) selected.
-                  Pre-checked members are already assigned to this dietitian.
-                </small>
-              </p>
-              <div className="row">
-                {members.map((member) => (
-                  <div className="col-md-6 mb-2" key={member._id}>
-                    <Form.Check
-                      type="checkbox"
-                      id={`dm-${member._id}`}
-                      label={
-                        <span>
-                          <strong>{member.name}</strong>
-                          <br />
-                          <small className="text-muted">{member.email}</small>
-                        </span>
-                      }
-                      checked={selectedMemberIds.includes(member._id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedMemberIds([...selectedMemberIds, member._id]);
-                        } else {
-                          setSelectedMemberIds(selectedMemberIds.filter((id) => id !== member._id));
-                        }
-                      }}
-                    />
-                  </div>
-                ))}
+        <Modal.Body style={{ padding: "16px 24px" }}>
+          {/* Summary bar */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span className="text-muted" style={{ fontSize: 13 }}>
+              {selectedMemberIds.length} of {members.length} selected
+            </span>
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => setSelectedMemberIds([])}
+            >
+              Clear All
+            </Button>
+          </div>
+
+          {/* Search */}
+          <Form.Control
+            type="text"
+            placeholder="Search members by name or email..."
+            value={memberSearch}
+            onChange={(e) => setMemberSearch(e.target.value)}
+            className="mb-3"
+          />
+
+          {/* Member grid — scrollable */}
+          <div style={{ maxHeight: "50vh", overflowY: "auto", overflowX: "hidden" }}>
+            {filteredMembers.length === 0 ? (
+              <p className="text-muted text-center">No members found</p>
+            ) : (
+              <div className="row g-2">
+                {filteredMembers.map((member) => {
+                  const checked = selectedMemberIds.includes(member._id);
+                  return (
+                    <div className="col-md-6" key={member._id}>
+                      <div
+                        className="d-flex align-items-center gap-2 p-2 rounded"
+                        style={{
+                          background: checked ? "#1a3a1a" : "#1e1e2e",
+                          border: `1px solid ${checked ? "#28a745" : "#444"}`,
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                        }}
+                        onClick={() => {
+                          if (checked) {
+                            setSelectedMemberIds((prev) => prev.filter((id) => id !== member._id));
+                          } else {
+                            setSelectedMemberIds((prev) => [...prev, member._id]);
+                          }
+                        }}
+                      >
+                        {/* Checkbox visual */}
+                        <div
+                          style={{
+                            width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                            background: checked ? "#28a745" : "transparent",
+                            border: `2px solid ${checked ? "#28a745" : "#888"}`,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                          }}
+                        >
+                          {checked && <FiCheck size={11} style={{ color: "#fff" }} />}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ color: "#fff", fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {member.name}
+                          </div>
+                          <div style={{ color: "#aaa", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {member.email}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </>
-          )}
+            )}
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => { setShowAssignModal(false); setCurrentDietitian(null); setSelectedMemberIds([]); }}>
+          <Button variant="secondary" onClick={() => { setShowAssignModal(false); setCurrentDietitian(null); setSelectedMemberIds([]); setMemberSearch(""); }}>
             Cancel
           </Button>
           <Button variant="primary" onClick={handleAssignMembers}>
-            Save Assignment
+            Save Assignment ({selectedMemberIds.length} selected)
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* ── NEW: Delete Confirmation Modal ───────────────────────────────── */}
+      {/* Delete Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton><Modal.Title>Confirm Delete</Modal.Title></Modal.Header>
-        <Modal.Body>
-          <p>Are you sure you want to delete this dietitian? This will also unassign all their members.</p>
-        </Modal.Body>
+        <Modal.Body><p>Are you sure? This will also unassign all their members.</p></Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
-          <Button variant="danger" onClick={handleDeleteDietitian}>Delete</Button>
+          <Button variant="danger" onClick={handleDelete}>Delete</Button>
         </Modal.Footer>
       </Modal>
     </div>

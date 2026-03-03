@@ -16,8 +16,10 @@ const router = express.Router();
 // All routes require authentication
 router.use(authenticateUser);
 
-// Public routes (for members)
-router.get("/member", getMemberBookings);
+// Member booking routes
+router.get("/member", getMemberBookings);        // primary route
+router.get("/my", getMemberBookings);            // alias — used by some frontend components
+
 router.get("/available-slots", getAvailableSlots);
 router.post("/", createBooking);
 router.post("/confirm", confirmBooking);
@@ -27,7 +29,3 @@ router.post("/cancel", cancelBooking);
 router.get("/trainer", isTrainer, getTrainerBookings);
 
 module.exports = router;
-
-
-
-

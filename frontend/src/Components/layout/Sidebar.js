@@ -48,9 +48,7 @@ const Sidebar = () => {
 
   const trainerMenu = [
     { name: 'My Profile', path: '/profile' },
-    { name: 'Workout Management', path: '/workout-management' },
-    { name: 'Assigned Users', path: '/user-progress' },
-    { name: 'Diet Plan Management', path: '/diet-plan' }
+    { name: 'Trainer Dashboard', path: '/trainer-dashboard' },
   ];
 
   const adminMenu = [
@@ -104,4 +102,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-

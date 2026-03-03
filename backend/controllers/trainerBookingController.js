@@ -12,24 +12,16 @@ exports.getTrainerBookings = async (req, res) => {
 
     const query = { trainer: trainerId };
     if (startDate && endDate) {
-      query.date = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+      query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
-    if (status) {
-      query.status = status;
-    }
+    if (status) query.status = status;
 
     const bookings = await TrainerBooking.find(query)
       .populate("member", "name email")
       .populate("payment")
       .sort({ date: 1, "timeSlot.start": 1 });
 
-    res.status(200).json({
-      success: true,
-      data: bookings,
-    });
+    res.status(200).json({ success: true, data: bookings });
   } catch (error) {
     console.error("Get trainer bookings error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -44,24 +36,16 @@ exports.getMemberBookings = async (req, res) => {
 
     const query = { member: memberId };
     if (startDate && endDate) {
-      query.date = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+      query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
-    if (status) {
-      query.status = status;
-    }
+    if (status) query.status = status;
 
     const bookings = await TrainerBooking.find(query)
       .populate("trainer", "name email")
       .populate("payment")
-      .sort({ date: 1, "timeSlot.start": 1 });
+      .sort({ date: -1, "timeSlot.start": 1 }); // newest first
 
-    res.status(200).json({
-      success: true,
-      data: bookings,
-    });
+    res.status(200).json({ success: true, data: bookings });
   } catch (error) {
     console.error("Get member bookings error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -78,7 +62,6 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Check if trainer exists and is a trainer
     const trainer = await User.findById(trainerId);
     if (!trainer || trainer.role !== "Trainer") {
       return res.status(400).json({ message: "Invalid trainer" });
@@ -89,17 +72,9 @@ exports.createBooking = async (req, res) => {
       trainer: trainerId,
       date: new Date(date),
       status: { $in: ["pending", "confirmed"] },
-      $or: [
-        {
-          "timeSlot.start": { $lt: timeSlot.end },
-          "timeSlot.end": { $gt: timeSlot.start },
-        },
-      ],
+      $or: [{ "timeSlot.start": { $lt: timeSlot.end }, "timeSlot.end": { $gt: timeSlot.start } }],
     });
-
-    if (conflict) {
-      return res.status(400).json({ message: "Time slot already booked" });
-    }
+    if (conflict) return res.status(400).json({ message: "Time slot already booked" });
 
     const booking = await TrainerBooking.create({
       trainer: trainerId,
@@ -108,10 +83,9 @@ exports.createBooking = async (req, res) => {
       timeSlot,
       sessionPrice,
       notes: notes || "",
-      status: "pending", // Will be confirmed after payment
+      status: "pending",
     });
 
-    // Populate for response
     await booking.populate("trainer", "name email");
     await booking.populate("member", "name email");
 
@@ -126,40 +100,65 @@ exports.createBooking = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
 // Confirm booking (after payment)
+//
+// FIX: Made idempotent.
+// Root cause of the bug:
+//   1. createTrainerOrder (Razorpay) saves booking.payment and calls booking.save()
+//   2. Razorpay webhook fires BEFORE the frontend handler — it calls confirmBooking
+//      internally and sets booking.status = "confirmed"
+//   3. Frontend handler then calls POST /bookings/confirm — but now
+//      booking.status is already "confirmed", so the old code returned 400
+//      "Booking is not pending" → frontend got { success: false } → showed
+//      "Payment received but booking confirmation failed" error
+//
+// Fix: if booking is already "confirmed", return 200 success immediately.
+// This is idempotent — calling confirm twice is safe and correct.
+// ─────────────────────────────────────────────────────────────────────────────
 exports.confirmBooking = async (req, res) => {
   try {
     const { bookingId, paymentId } = req.body;
 
+    if (!bookingId) {
+      return res.status(400).json({ success: false, message: "bookingId is required" });
+    }
+
     const booking = await TrainerBooking.findById(bookingId);
     if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
+      return res.status(404).json({ success: false, message: "Booking not found" });
     }
 
-    if (booking.status !== "pending") {
-      return res.status(400).json({ message: "Booking is not pending" });
+    // ── Already confirmed: idempotent — return success immediately ────────────
+    if (booking.status === "confirmed") {
+      return res.status(200).json({
+        success: true,
+        message: "Booking confirmed",
+        data: booking,
+      });
     }
 
+    // Cannot confirm a cancelled or completed booking
+    if (booking.status === "cancelled" || booking.status === "completed") {
+      return res.status(400).json({
+        success: false,
+        message: `Booking cannot be confirmed (current status: ${booking.status})`,
+      });
+    }
+
+    // Confirm the pending booking
     booking.status = "confirmed";
-    booking.payment = paymentId;
+    if (paymentId) booking.payment = paymentId;
     await booking.save();
 
-    // Send notification emails (TODO: implement templates if needed)
-    const trainer = await User.findById(booking.trainer);
-    const member = await User.findById(booking.member);
-
-    // Example placeholders:
-    // await sendEmail(trainer.email, "New session booked", "You have a new booking.");
-    // await sendEmail(member.email, "Session confirmed", "Your session is confirmed.");
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Booking confirmed",
       data: booking,
     });
   } catch (error) {
     console.error("Confirm booking error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -170,18 +169,11 @@ exports.cancelBooking = async (req, res) => {
     const userId = req.user.id;
 
     const booking = await TrainerBooking.findById(bookingId);
-    if (!booking) {
-      return res.status(404).json({ message: "Booking not found" });
-    }
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    // Check if user is the member or trainer
-    if (
-      booking.member.toString() !== userId &&
-      booking.trainer.toString() !== userId
-    ) {
+    if (booking.member.toString() !== userId && booking.trainer.toString() !== userId) {
       return res.status(403).json({ message: "Not authorized to cancel this booking" });
     }
-
     if (booking.status === "cancelled" || booking.status === "completed") {
       return res.status(400).json({ message: "Booking cannot be cancelled" });
     }
@@ -191,11 +183,7 @@ exports.cancelBooking = async (req, res) => {
     booking.cancellationReason = reason || "";
     await booking.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Booking cancelled",
-      data: booking,
-    });
+    res.status(200).json({ success: true, message: "Booking cancelled", data: booking });
   } catch (error) {
     console.error("Cancel booking error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -206,7 +194,6 @@ exports.cancelBooking = async (req, res) => {
 exports.getAvailableSlots = async (req, res) => {
   try {
     const { trainerId, date } = req.query;
-
     if (!trainerId || !date) {
       return res.status(400).json({ message: "trainerId and date are required" });
     }
@@ -214,14 +201,13 @@ exports.getAvailableSlots = async (req, res) => {
     const bookingDate = new Date(date);
     bookingDate.setHours(0, 0, 0, 0);
 
-    // Get all bookings for this trainer on this date
     const bookings = await TrainerBooking.find({
       trainer: trainerId,
       date: bookingDate,
       status: { $in: ["pending", "confirmed"] },
     });
 
-    // Generate available slots (9 AM to 8 PM, 1-hour slots)
+    // 9 AM – 8 PM, 1-hour slots
     const allSlots = [];
     for (let hour = 9; hour < 20; hour++) {
       allSlots.push({
@@ -230,23 +216,14 @@ exports.getAvailableSlots = async (req, res) => {
       });
     }
 
-    // Filter out booked slots
     const bookedSlots = bookings.map((b) => b.timeSlot);
-    const availableSlots = allSlots.filter((slot) => {
-      return !bookedSlots.some((booked) => {
-        return slot.start < booked.end && slot.end > booked.start;
-      });
-    });
+    const availableSlots = allSlots.filter(
+      (slot) => !bookedSlots.some((b) => slot.start < b.end && slot.end > b.start)
+    );
 
-    res.status(200).json({
-      success: true,
-      data: availableSlots,
-    });
+    res.status(200).json({ success: true, data: availableSlots });
   } catch (error) {
     console.error("Get available slots error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-
-

@@ -397,10 +397,10 @@ exports.assignTrainerToMembers = async (req, res) => {
     }
 
     const trainer = await User.findById(trainerId);
-    if (!trainer || trainer.role !== "Trainer") {
+    if (!trainer || !["Trainer"].includes(trainer.role)) {
       return res
         .status(404)
-        .json({ success: false, message: "Trainer not found" });
+        .json({ success: false, message: "Trainer not found in database" });
     }
 
     await User.updateMany(

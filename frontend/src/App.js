@@ -44,20 +44,20 @@ import RazorpaySuccess from "./Components/membership/RazorpaySuccess";
 import RazorpayCancel from "./Components/membership/RazorpayCancel";
 import ChoosePaymentMethod from "./Components/membership/ChoosePaymentMethod";
 import FakeErrorPage from "./Components/membership/FakeErrorPage";
+import TrainerCheckout from "./Components/membership/TrainerCheckout";
+import TrainerBookingSuccess from "./Components/membership/TrainerBookingSuccess";
+import TrainerBooking from "./Components/membership/TrainerBooking";
+
+// Dashboard Components
 import DietitianDashboard from "./Components/Dietitian/DietitianDashboard";
 import MemberDashboard from "./Components/Member/MemberDashboard";
-import TrainerBooking from "./Components/membership/TrainerBooking";
+import TrainerDashboard from "./Components/Trainer/TrainerDashboard";
 
 // Common Components
 import { Feedback } from './Components/common/Feedback';
 import { Trainer } from './Components/common/Trainer';
 import DietPlan from './Components/common/DietPlan';
 import Logout from './Components/common/Logout';
-
-// Trainer Components
-import WorkoutManagement from './Components/Trainer/WorkoutManagement';
-import DietPlanManagement from './Components/Trainer/DietPlanManagement';
-import UserProgressTracker from './Components/Trainer/UserProgressTracker';
 
 // Admin Components
 import { Index } from "./Components/Admin/Index";
@@ -124,25 +124,22 @@ function App() {
             <Route path="/choose-payment" element={<ChoosePaymentMethod />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancel" element={<PaymentCancel />} />
-            <Route
-              path="/payment-error"
-              element={<FakeErrorPage />}
-            />
+            <Route path="/payment-error" element={<FakeErrorPage />} />
 
-            {/* Trainer Routes */}
-            <Route path="/workout-management" element={<WorkoutManagement />} />
-            <Route path="/diet-plan" element={<DietPlanManagement />} />
-            <Route path="/user-progress" element={<UserProgressTracker />} />
+            {/* Trainer Session Booking Routes */}
+            <Route path="/book-trainer/:trainerId" element={<TrainerBooking />} />
+            <Route path="/book-trainer" element={<TrainerBooking />} />
+            <Route path="/trainer-checkout" element={<TrainerCheckout />} />
+            <Route path="/trainer-booking-success" element={<TrainerBookingSuccess />} />
+
+            {/* Trainer Dashboard */}
+            <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
 
             {/* Dietitian Routes */}
             <Route path="/dietitian" element={<DietitianDashboard />} />
 
             {/* Member Routes */}
             <Route path="/member-dashboard" element={<MemberDashboard />} />
-
-            {/* Trainer Booking Routes */}
-            <Route path="/book-trainer/:trainerId" element={<TrainerBooking />} />
-            <Route path="/book-trainer" element={<TrainerBooking />} />
 
             {/* Admin Routes */}
             <Route path="/admin/" element={<Index />} />

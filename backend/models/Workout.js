@@ -1,4 +1,4 @@
-// backend\models\Workout.js
+// backend/models/Workout.js
 const mongoose = require("mongoose");
 
 // Define Exercise Schema
@@ -23,7 +23,7 @@ const ExerciseSchema = new mongoose.Schema({
     min: 1,
   },
   reps: {
-    type: mongoose.Schema.Types.Mixed, // Supports both numbers and "Hold for X seconds"
+    type: mongoose.Schema.Types.Mixed,
     required: [true, "Please provide reps information"],
   },
   tips: {
@@ -46,13 +46,25 @@ const ExerciseSchema = new mongoose.Schema({
       "Please provide a valid YouTube URL",
     ],
   },
+  // ── NEW: track which trainer created this exercise ────────────────────────
+  // Optional so existing exercises without this field still work.
+  // Populated when a trainer creates an exercise via the Trainer Dashboard.
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+    default: null,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // Define Workout Schema
 const WorkoutSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, "Please provide a title"]
+    required: [true, "Please provide a title"],
   },
   exercises: [
     {
@@ -65,4 +77,4 @@ const WorkoutSchema = new mongoose.Schema({
 const Exercise = mongoose.model("exercises", ExerciseSchema);
 const Workout = mongoose.model("workouts", WorkoutSchema);
 
-module.exports = { Workout, Exercise };
+module.exports = { Exercise, Workout };

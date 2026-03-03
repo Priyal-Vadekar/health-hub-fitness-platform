@@ -1,8 +1,8 @@
 // backend/routes/razorpayRoutes.js
-// Razorpay Payment Routes (Test Mode Only)
 const express = require("express");
 const {
   createRazorpayOrder,
+  createTrainerOrder,       // NEW — trainer session payment
   handleRazorpayWebhook,
   verifyPayment,
 } = require("../controllers/razorpayController");
@@ -10,16 +10,16 @@ const { authenticateUser } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Create Razorpay order (protected route - requires authentication)
+// Membership payment
 router.post("/create-order", authenticateUser, createRazorpayOrder);
 
-// Webhook endpoint (public - called by Razorpay)
-// Note: Raw body is handled in server.js for signature verification
+// Trainer session payment (NEW)
+router.post("/create-trainer-order", authenticateUser, createTrainerOrder);
+
+// Webhook (public — called by Razorpay, raw body handled in server.js)
 router.post("/webhook", handleRazorpayWebhook);
 
-// Optional: Manual payment verification endpoint (protected)
+// Manual verification (optional fallback)
 router.post("/verify-payment", authenticateUser, verifyPayment);
 
 module.exports = router;
-
-

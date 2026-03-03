@@ -1,5 +1,6 @@
 // frontend/src/Components/Admin/Trainer.js
 import React, { useState, useEffect, useRef } from "react";
+import { FiCheck } from "react-icons/fi";
 import axios from "axios";
 import { Modal, Button, Dropdown, DropdownButton, Form, Collapse } from "react-bootstrap";
 import Sidebar from "./Sidebar";
@@ -27,15 +28,23 @@ const TrainerList = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [members, setMembers] = useState([]);
   const [selectedMemberIds, setSelectedMemberIds] = useState([]);
+  const [memberSearch, setMemberSearch] = useState("");
   const [filteredTrainers, setFilteredTrainers] = useState([]);
   const [specialtyFilter, setSpecialtyFilter] = useState("");
   const [nameFilter, setNameFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  // ── BUG FIX 03: Token fix
+  // Original code used localStorage.getItem("token") in some places (wrong key — always null)
+  // Auth token is stored under "auth" key as a JSON stringified value
   const getAuthToken = () => {
     const raw = localStorage.getItem("auth");
     return raw ? JSON.parse(raw) : null;
+  };
+  const authHeaders = () => {
+    const token = getAuthToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
   useEffect(() => {
@@ -45,55 +54,34 @@ const TrainerList = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = trainers.filter((trainer) => {
-      const specialtyMatch = trainer.specialty?.toLowerCase().includes(specialtyFilter.toLowerCase());
-      const nameMatch = trainer.user?.name?.toLowerCase().includes(nameFilter.toLowerCase());
-      return specialtyMatch && nameMatch;
+    const filtered = trainers.filter((t) => {
+      const sMatch = t.specialty?.toLowerCase().includes(specialtyFilter.toLowerCase());
+      const nMatch = t.user?.name?.toLowerCase().includes(nameFilter.toLowerCase());
+      return sMatch && nMatch;
     });
     setFilteredTrainers(filtered);
   }, [specialtyFilter, nameFilter, trainers]);
 
   const fetchMembers = async () => {
     try {
-      const token = getAuthToken();
-      const res = await axios.get("http://localhost:5000/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) {
-        setMembers(res.data.data.filter((u) => u.role === "Member"));
-      }
-    } catch (err) {
-      console.error("Error fetching members:", err);
-    }
+      const res = await axios.get("http://localhost:5000/api/users", { headers: authHeaders() });
+      if (res.data.success) setMembers(res.data.data.filter((u) => u.role === "Member"));
+    } catch (err) { console.error("Error fetching members:", err); }
   };
 
   const fetchUsers = async () => {
     try {
-      const token = getAuthToken();
-      const res = await axios.get("http://localhost:5000/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) {
-        setUsers(res.data.data.filter((u) => u.role === "Trainer"));
-      }
-    } catch (err) {
-      console.error("Error fetching users:", err);
-    }
+      const res = await axios.get("http://localhost:5000/api/users", { headers: authHeaders() });
+      if (res.data.success) setUsers(res.data.data.filter((u) => u.role === "Trainer"));
+    } catch (err) { console.error("Error fetching users:", err); }
   };
 
   const fetchTrainers = async () => {
     try {
-      const token = getAuthToken();
-      const response = await axios.get("http://localhost:5000/api/staff", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const filtered = (response.data.data || []).filter((s) => s.role === "Trainer");
-      setTrainers(filtered);
-    } catch (error) {
-      console.error("Error fetching trainers:", error);
-    } finally {
-      setLoading(false);
-    }
+      const res = await axios.get("http://localhost:5000/api/staff", { headers: authHeaders() });
+      setTrainers((res.data.data || []).filter((s) => s.role === "Trainer"));
+    } catch (error) { console.error("Error fetching trainers:", error); }
+    finally { setLoading(false); }
   };
 
   const isUserTrainer = (userId) => trainers.some((t) => t.user?._id === userId);
@@ -110,17 +98,12 @@ const TrainerList = () => {
     formData.append("role", "Trainer");
     formData.append("image", newTrainer.image);
     try {
-      const token = getAuthToken();
-      await axios.post("http://localhost:5000/api/staff/new-staff", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post("http://localhost:5000/api/staff/new-staff", formData, { headers: authHeaders() });
       setShowAdd(false);
       setNewTrainer(initialTrainerState);
       fetchTrainers();
-      toast.success("Trainer added successfully!");
-    } catch (error) {
-      toast.error("Failed to add trainer.");
-    }
+      toast.success("Trainer added!");
+    } catch (e) { toast.error("Failed to add trainer."); }
   };
 
   const confirmDelete = async () => {
@@ -128,79 +111,68 @@ const TrainerList = () => {
       await axios.delete(`http://localhost:5000/api/staff/delete-staff/${deleteTrainerId}`);
       setTrainers((prev) => prev.filter((t) => t._id !== deleteTrainerId));
       setShowDeleteModal(false);
-      toast.success("Trainer deleted successfully!");
-    } catch (error) {
-      toast.error("Failed to delete trainer.");
-    }
+      toast.success("Trainer deleted!");
+    } catch (e) { toast.error("Failed to delete trainer."); }
   };
 
   const handleSaveEdit = async () => {
     try {
-      const token = getAuthToken();
       await axios.patch(
         `http://localhost:5000/api/staff/update-staff/${currentTrainer._id}`,
         { specialty: currentTrainer.specialty, description: currentTrainer.description },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: authHeaders() }
       );
       setTrainers((prev) => prev.map((t) => t._id === currentTrainer._id ? currentTrainer : t));
-      toast.success("Trainer updated successfully!");
+      toast.success("Trainer updated!");
       setShowEdit(false);
-    } catch (error) {
-      toast.error("Failed to update trainer.");
-    }
+    } catch (e) { toast.error("Failed to update trainer."); }
   };
 
   const generatePDF = () => {
     html2canvas(componentPDF.current, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-      pdf.addImage(imgData, "PNG", 0, 10, 210, (canvas.height * 210) / canvas.width);
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 10, 210, (canvas.height * 210) / canvas.width);
       pdf.save("trainers.pdf");
     });
   };
 
   const openAssignModal = (trainer) => {
     setCurrentTrainer(trainer);
-    // ── BUG FIX: Pre-check members already assigned to this trainer
-    // Original checked members.assignedTrainer === trainer.user?._id
-    // but assignedTrainer stores the user _id (string compare needed)
-    const trainerId = trainer.user?._id?.toString();
-    const alreadyAssigned = members
-      .filter((m) => m.assignedTrainer?.toString() === trainerId)
-      .map((m) => m._id);
-    setSelectedMemberIds(alreadyAssigned);
+    setMemberSearch("");
+    const tid = trainer.user?._id?.toString();
+    const already = members.filter((m) => m.assignedTrainer?.toString() === tid).map((m) => m._id);
+    setSelectedMemberIds(already);
     setShowAssignModal(true);
   };
 
   const handleAssignMembers = async () => {
-    if (!currentTrainer?.user?._id) {
-      toast.error("Trainer not found");
-      return;
-    }
+    if (!currentTrainer?.user?._id) { toast.error("Trainer not found"); return; }
     try {
-      const token = getAuthToken();
+      // ── FIX: send auth header — original had no/wrong token → 404 "No token provided"
       const res = await axios.patch(
         `http://localhost:5000/api/admin/trainers/${currentTrainer.user._id}/assign-members`,
         { memberIds: selectedMemberIds },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: authHeaders() }
       );
       if (res.data.success) {
-        toast.success(
-          selectedMemberIds.length === 0
-            ? "All members unassigned successfully"
-            : `Assigned ${res.data.data.modifiedCount} members successfully!`
-        );
+        toast.success(selectedMemberIds.length === 0 ? "All unassigned" : `${res.data.data.modifiedCount} assigned!`);
         setShowAssignModal(false);
         setSelectedMemberIds([]);
         setCurrentTrainer(null);
         fetchMembers();
+        fetchTrainers();
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to assign members");
-    }
+    } catch (e) { toast.error(e.response?.data?.message || "Failed to assign"); }
   };
 
   const totalPages = Math.max(1, Math.ceil(filteredTrainers.length / rowsPerPage));
+
+  // Members filtered by search in modal
+  const filteredMembers = members.filter(
+    (m) =>
+      m.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+      m.email.toLowerCase().includes(memberSearch.toLowerCase())
+  );
 
   return (
     <div className="d-flex">
@@ -224,20 +196,10 @@ const TrainerList = () => {
 
                 <Collapse in={filterOpen}>
                   <div className="card p-3 mb-3 shadow-sm position-relative">
-                    <Button
-                      variant="outline-secondary" size="sm"
-                      onClick={() => { setSpecialtyFilter(""); setNameFilter(""); }}
-                      className="position-absolute top-0 end-0 m-2"
-                    >Clear</Button>
+                    <Button variant="outline-secondary" size="sm" onClick={() => { setSpecialtyFilter(""); setNameFilter(""); }} className="position-absolute top-0 end-0 m-2">Clear</Button>
                     <Form className="row g-3">
-                      <Form.Group className="col-md-4">
-                        <Form.Label>Specialty</Form.Label>
-                        <Form.Control type="text" value={specialtyFilter} onChange={(e) => setSpecialtyFilter(e.target.value)} />
-                      </Form.Group>
-                      <Form.Group className="col-md-4">
-                        <Form.Label>Name</Form.Label>
-                        <Form.Control type="text" value={nameFilter} onChange={(e) => setNameFilter(e.target.value)} />
-                      </Form.Group>
+                      <Form.Group className="col-md-4"><Form.Label>Specialty</Form.Label><Form.Control type="text" value={specialtyFilter} onChange={(e) => setSpecialtyFilter(e.target.value)} /></Form.Group>
+                      <Form.Group className="col-md-4"><Form.Label>Name</Form.Label><Form.Control type="text" value={nameFilter} onChange={(e) => setNameFilter(e.target.value)} /></Form.Group>
                     </Form>
                   </div>
                 </Collapse>
@@ -245,50 +207,30 @@ const TrainerList = () => {
                 <div ref={componentPDF} className="table-responsive">
                   <table className="table table-dark table-striped table-bordered text-center w-100">
                     <thead>
-                      <tr>
-                        <th>No</th><th>Name</th><th>Email</th>
-                        <th>Specialty</th><th>Description</th><th>Action</th>
-                      </tr>
+                      <tr><th>No</th><th>Name</th><th>Email</th><th>Specialty</th><th>Description</th><th>Action</th></tr>
                     </thead>
                     <tbody>
-                      {filteredTrainers
-                        .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
-                        .map((trainer, index) => (
-                          <tr key={trainer._id}>
-                            <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                            <td>{trainer.user?.name || "Trainer"}</td>
-                            <td>{trainer.user?.email || "N/A"}</td>
-                            <td>{trainer.specialty}</td>
-                            <td>{trainer.description}</td>
-                            <td>
-                              <DropdownButton variant="secondary" title="Action">
-                                <Dropdown.Item onClick={() => { setCurrentTrainer(trainer); setShowDetails(true); }}>
-                                  Details
-                                </Dropdown.Item>
-                                <Dropdown.Item onClick={() => { setCurrentTrainer(trainer); setShowEdit(true); }}>
-                                  Edit
-                                </Dropdown.Item>
-                                <Dropdown.Item onClick={() => openAssignModal(trainer)}>
-                                  Assign Members
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                  className="text-danger"
-                                  onClick={() => { setDeleteTrainerId(trainer._id); setShowDeleteModal(true); }}
-                                >
-                                  Delete
-                                </Dropdown.Item>
-                              </DropdownButton>
-                            </td>
-                          </tr>
-                        ))}
+                      {filteredTrainers.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((trainer, index) => (
+                        <tr key={trainer._id}>
+                          <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                          <td>{trainer.user?.name || "Trainer"}</td>
+                          <td>{trainer.user?.email || "N/A"}</td>
+                          <td>{trainer.specialty}</td>
+                          <td>{trainer.description}</td>
+                          <td>
+                            <DropdownButton variant="secondary" title="Action">
+                              <Dropdown.Item onClick={() => { setCurrentTrainer(trainer); setShowDetails(true); }}>Details</Dropdown.Item>
+                              <Dropdown.Item onClick={() => { setCurrentTrainer(trainer); setShowEdit(true); }}>Edit</Dropdown.Item>
+                              <Dropdown.Item onClick={() => openAssignModal(trainer)}>Assign Members</Dropdown.Item>
+                              <Dropdown.Item className="text-danger" onClick={() => { setDeleteTrainerId(trainer._id); setShowDeleteModal(true); }}>Delete</Dropdown.Item>
+                            </DropdownButton>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                   <div className="d-flex justify-content-between align-items-center mt-3">
-                    <Form.Select
-                      value={rowsPerPage}
-                      onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                      className="w-auto"
-                    >
+                    <Form.Select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }} className="w-auto">
                       {[5, 10, 15, 20].map((n) => <option key={n} value={n}>Show {n} rows</option>)}
                     </Form.Select>
                     <div>
@@ -313,33 +255,15 @@ const TrainerList = () => {
               <Form.Label>Select User (Trainer role)</Form.Label>
               <Form.Control as="select" value={newTrainer.userId} onChange={(e) => setNewTrainer({ ...newTrainer, userId: e.target.value })}>
                 <option value="">-- Select User --</option>
-                {users.map((user) => {
-                  const already = isUserTrainer(user._id);
-                  return (
-                    <option key={user._id} value={user._id} disabled={already}>
-                      {user.name}{already ? " - Already Added" : ""}
-                    </option>
-                  );
-                })}
+                {users.map((u) => { const already = isUserTrainer(u._id); return <option key={u._id} value={u._id} disabled={already}>{u.name}{already ? " - Already Added" : ""}</option>; })}
               </Form.Control>
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Specialty</Form.Label>
-              <Form.Control type="text" value={newTrainer.specialty} onChange={(e) => setNewTrainer({ ...newTrainer, specialty: e.target.value })} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control as="textarea" rows={3} value={newTrainer.description} onChange={(e) => setNewTrainer({ ...newTrainer, description: e.target.value })} />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Image</Form.Label>
-              <Form.Control type="file" onChange={(e) => setNewTrainer({ ...newTrainer, image: e.target.files[0] })} />
-            </Form.Group>
+            <Form.Group className="mb-3"><Form.Label>Specialty</Form.Label><Form.Control type="text" value={newTrainer.specialty} onChange={(e) => setNewTrainer({ ...newTrainer, specialty: e.target.value })} /></Form.Group>
+            <Form.Group className="mb-3"><Form.Label>Description</Form.Label><Form.Control as="textarea" rows={3} value={newTrainer.description} onChange={(e) => setNewTrainer({ ...newTrainer, description: e.target.value })} /></Form.Group>
+            <Form.Group><Form.Label>Image</Form.Label><Form.Control type="file" onChange={(e) => setNewTrainer({ ...newTrainer, image: e.target.files[0] })} /></Form.Group>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleAddTrainer}>Add Trainer</Button>
-        </Modal.Footer>
+        <Modal.Footer><Button variant="primary" onClick={handleAddTrainer}>Add Trainer</Button></Modal.Footer>
       </Modal>
 
       {/* Details Modal */}
@@ -347,22 +271,14 @@ const TrainerList = () => {
         <Modal.Header closeButton><Modal.Title>Trainer Details</Modal.Title></Modal.Header>
         <Modal.Body>
           <div className="text-center mb-3">
-            {currentTrainer?.image && (
-              <img
-                src={`/Images/${currentTrainer.image}`}
-                alt={currentTrainer.user?.name}
-                style={{ width: 180, height: 180, objectFit: "cover", borderRadius: "50%" }}
-              />
-            )}
+            {currentTrainer?.image && <img src={`/Images/${currentTrainer.image}`} alt="" style={{ width: 180, height: 180, objectFit: "cover", borderRadius: "50%" }} />}
           </div>
           <p><strong>Name:</strong> {currentTrainer?.user?.name}</p>
           <p><strong>Email:</strong> {currentTrainer?.user?.email}</p>
           <p><strong>Specialty:</strong> {currentTrainer?.specialty}</p>
           <p><strong>Description:</strong> {currentTrainer?.description}</p>
         </Modal.Body>
-        <Modal.Footer>
-          <Button className="pdf-btn" onClick={generatePDF}>Generate PDF</Button>
-        </Modal.Footer>
+        <Modal.Footer><Button className="pdf-btn" onClick={generatePDF}>Generate PDF</Button></Modal.Footer>
       </Modal>
 
       {/* Edit Modal */}
@@ -370,23 +286,12 @@ const TrainerList = () => {
         <Modal.Header closeButton><Modal.Title>Edit Trainer</Modal.Title></Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control type="text" value={currentTrainer?.user?.name || ""} disabled />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Specialty</Form.Label>
-              <Form.Control type="text" value={currentTrainer?.specialty || ""} onChange={(e) => setCurrentTrainer({ ...currentTrainer, specialty: e.target.value })} />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Description</Form.Label>
-              <Form.Control as="textarea" rows={3} value={currentTrainer?.description || ""} onChange={(e) => setCurrentTrainer({ ...currentTrainer, description: e.target.value })} />
-            </Form.Group>
+            <Form.Group className="mb-3"><Form.Label>Name</Form.Label><Form.Control type="text" value={currentTrainer?.user?.name || ""} disabled /></Form.Group>
+            <Form.Group className="mb-3"><Form.Label>Specialty</Form.Label><Form.Control type="text" value={currentTrainer?.specialty || ""} onChange={(e) => setCurrentTrainer({ ...currentTrainer, specialty: e.target.value })} /></Form.Group>
+            <Form.Group><Form.Label>Description</Form.Label><Form.Control as="textarea" rows={3} value={currentTrainer?.description || ""} onChange={(e) => setCurrentTrainer({ ...currentTrainer, description: e.target.value })} /></Form.Group>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleSaveEdit}>Save Changes</Button>
-        </Modal.Footer>
+        <Modal.Footer><Button variant="primary" onClick={handleSaveEdit}>Save Changes</Button></Modal.Footer>
       </Modal>
 
       {/* Delete Modal */}
@@ -399,66 +304,76 @@ const TrainerList = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* ── Assign Members Modal — FIXED UI ───────────────────────────────── */}
+      {/* ── Assign Members Modal — FIXED: proper grid, search, token ─────── */}
       <Modal
         show={showAssignModal}
-        onHide={() => { setShowAssignModal(false); setCurrentTrainer(null); setSelectedMemberIds([]); }}
-        centered
-        size="lg"
+        onHide={() => { setShowAssignModal(false); setCurrentTrainer(null); setSelectedMemberIds([]); setMemberSearch(""); }}
+        centered size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Assign Members to {currentTrainer?.user?.name || "Trainer"}</Modal.Title>
+          <Modal.Title>Assign Members — {currentTrainer?.user?.name}</Modal.Title>
         </Modal.Header>
-        {/* ── FIX: Added maxHeight + overflow-y scroll so modal doesn't overflow screen */}
-        <Modal.Body style={{ maxHeight: "60vh", overflowY: "auto" }}>
-          {members.length === 0 ? (
-            <p className="text-muted">No members available</p>
-          ) : (
-            <>
-              <p className="text-muted mb-3">
-                <small>
-                  {selectedMemberIds.length} member(s) selected.
-                  Pre-checked members are already assigned to this trainer.
-                </small>
-              </p>
-              <div className="row">
-                {members.map((member) => (
-                  <div className="col-md-6 mb-2" key={member._id}>
-                    <Form.Check
-                      type="checkbox"
-                      id={`member-${member._id}`}
-                      label={
-                        <span>
-                          <strong>{member.name}</strong>
-                          <br />
-                          <small className="text-muted">{member.email}</small>
-                        </span>
-                      }
-                      checked={selectedMemberIds.includes(member._id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedMemberIds([...selectedMemberIds, member._id]);
-                        } else {
-                          setSelectedMemberIds(selectedMemberIds.filter((id) => id !== member._id));
-                        }
-                      }}
-                    />
-                  </div>
-                ))}
+        <Modal.Body style={{ padding: "16px 24px" }}>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span className="text-muted" style={{ fontSize: 13 }}>
+              {selectedMemberIds.length} of {members.length} selected
+            </span>
+            <Button variant="outline-secondary" size="sm" onClick={() => setSelectedMemberIds([])}>Clear All</Button>
+          </div>
+
+          <Form.Control
+            type="text"
+            placeholder="Search members by name or email..."
+            value={memberSearch}
+            onChange={(e) => setMemberSearch(e.target.value)}
+            className="mb-3"
+          />
+
+          <div style={{ maxHeight: "50vh", overflowY: "auto", overflowX: "hidden" }}>
+            {filteredMembers.length === 0 ? (
+              <p className="text-muted text-center">No members found</p>
+            ) : (
+              <div className="row g-2">
+                {filteredMembers.map((member) => {
+                  const checked = selectedMemberIds.includes(member._id);
+                  return (
+                    <div className="col-md-6" key={member._id}>
+                      <div
+                        className="d-flex align-items-center gap-2 p-2 rounded"
+                        style={{
+                          background: checked ? "#1a3a1a" : "#1e1e2e",
+                          border: `1px solid ${checked ? "#28a745" : "#444"}`,
+                          cursor: "pointer", transition: "all 0.15s",
+                        }}
+                        onClick={() => {
+                          if (checked) setSelectedMemberIds((prev) => prev.filter((id) => id !== member._id));
+                          else setSelectedMemberIds((prev) => [...prev, member._id]);
+                        }}
+                      >
+                        <div style={{
+                          width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                          background: checked ? "#28a745" : "transparent",
+                          border: `2px solid ${checked ? "#28a745" : "#888"}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          {checked && <FiCheck size={11} style={{ color: "#fff" }} />}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ color: "#fff", fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{member.name}</div>
+                          <div style={{ color: "#aaa", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{member.email}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </>
-          )}
+            )}
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => { setShowAssignModal(false); setCurrentTrainer(null); setSelectedMemberIds([]); }}
-          >
-            Cancel
-          </Button>
-          {/* ── FIX: Allow saving with 0 members selected (to unassign everyone) */}
+          <Button variant="secondary" onClick={() => { setShowAssignModal(false); setCurrentTrainer(null); setSelectedMemberIds([]); setMemberSearch(""); }}>Cancel</Button>
           <Button variant="primary" onClick={handleAssignMembers}>
-            Save Assignment
+            Save Assignment ({selectedMemberIds.length} selected)
           </Button>
         </Modal.Footer>
       </Modal>

@@ -5,7 +5,7 @@ import { http } from '../../api/http';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
-import '../../css/DietitianDashboard.css';
+import '../../css/MemberDashboard.css';
 
 const MembershipManagement = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const MembershipManagement = () => {
 
       if (paymentsRes.data.success) {
         // Filter payments for current user
-        const userPayments = (paymentsRes.data.data || []).filter(p => 
+        const userPayments = (paymentsRes.data.data || []).filter(p =>
           p.userMembership?.user?._id || p.userMembership?.user
         );
         setPayments(userPayments);
@@ -93,7 +93,7 @@ const MembershipManagement = () => {
 
   return (
     <Layout>
-      <div className="dietitian-dashboard">
+      <div className="member-dashboard">
         <div className="dashboard-header">
           <h1>My Membership</h1>
           <p>Manage your membership and view history</p>
