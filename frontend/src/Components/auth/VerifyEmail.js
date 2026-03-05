@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../../css/VerifyEmail.css";
+import { http } from "../../api/http";
 
 const VerifyEmailModal = ({ show, onHide, email }) => {
   const [code, setCode] = useState("");
@@ -19,8 +19,8 @@ const VerifyEmailModal = ({ show, onHide, email }) => {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/verify-email",
+      const response = await http.post(
+        "/auth/verify-email",
         {
           email,
           code,
@@ -46,7 +46,7 @@ const VerifyEmailModal = ({ show, onHide, email }) => {
   const handleResend = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/auth/resend-verification", {
+      await http.post("/auth/resend-verification", {
         email,
       });
       toast.info("A new code has been sent to your email.");

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import { Carousel } from "antd";
-import axios from "axios";
 import "../../css/Home.css";
+import { http } from "../../api/http";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -16,8 +16,8 @@ export const Home = () => {
   const [staffLoading, setStaffLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/users/public-stats")
+    http
+      .get("/users/public-stats")
       .then((res) => {
         setStats({
           members: res.data.members || 0,
@@ -32,8 +32,8 @@ export const Home = () => {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/staff")
+    http
+      .get("/staff")
       .then((res) => {
         // Handle both { data: [...] } and direct array responses
         const list = res.data.data || res.data;
@@ -48,8 +48,8 @@ export const Home = () => {
 
   // ─── Fetch testimonials ───
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/testimonials/all-testimonials")
+    http
+      .get("/testimonials/all-testimonials")
       .then((response) => {
         const active = response.data.filter((t) => t.active === true);
         setTestimonials(active);

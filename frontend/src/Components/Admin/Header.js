@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
-import axios from "axios";
 import logo from "../../assets/fitness.jpg";
 import "./css/header.css";
+import { http } from "../../api/http";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -22,9 +22,7 @@ export const Header = () => {
         }
 
         // Verify token and get user data
-        const response = await axios.get("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${JSON.parse(token)}` },
-        });
+        const response = await http.get("/auth/me");
 
         if (response.data) {
           const userData = {
@@ -65,7 +63,7 @@ export const Header = () => {
     try {
       const auth = getAuth();
       await signOut(auth);
-      await axios.post("http://localhost:5000/api/auth/logout");
+      await http.post("/auth/logout");
 
       localStorage.removeItem("user");
       localStorage.removeItem("auth");
@@ -108,9 +106,8 @@ export const Header = () => {
               {user ? user.displayName || user.email : "User"}
             </button>
             <ul
-              className={`dropdown-menu dropdown-menu-end ${
-                dropdownOpen ? "show" : ""
-              }`}
+              className={`dropdown-menu dropdown-menu-end ${dropdownOpen ? "show" : ""
+                }`}
             >
               <li>
                 <a

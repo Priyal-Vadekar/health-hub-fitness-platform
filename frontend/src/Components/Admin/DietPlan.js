@@ -1,6 +1,5 @@
 // frontend/src/Components/Admin/DietPlan.js
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Modal, Button, Collapse, Form } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
@@ -8,6 +7,7 @@ import "./css/Staff.css";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
+import { http } from "../../api/http";
 
 const DietPlanList = () => {
   const [dietPlans, setDietPlans] = useState([]);
@@ -38,12 +38,7 @@ const DietPlanList = () => {
   const fetchDietPlans = async () => {
     try {
       setLoading(true);
-      const raw = localStorage.getItem("auth");
-      const token = raw ? JSON.parse(raw) : null;
-      const response = await axios.get(
-        "http://localhost:5000/api/diet-plans/all-diet-plans",
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-      );
+      const response = await http.get("/diet-plans/all-diet-plans");
       const payload = response.data;
       const list = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
       setDietPlans(list);

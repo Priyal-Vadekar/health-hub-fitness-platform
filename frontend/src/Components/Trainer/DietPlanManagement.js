@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Button, Collapse, Form } from "react-bootstrap";
 import Sidebar from "../layout/Sidebar.js";
 import "../Admin/css/Staff.css";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { http } from "../../api/http";
 
 const DietPlanList = () => {
   const [dietPlans, setDietPlans] = useState([]);
@@ -20,9 +20,7 @@ const DietPlanList = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("auth");
-      const response = await axios.get("http://localhost:5000/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.get("/users");
       // Correctly access the 'data' array
       setUsers(response.data.data); // Assign users from 'data' property
     } catch (error) {
@@ -56,14 +54,7 @@ const DietPlanList = () => {
       const rawToken = localStorage.getItem("auth");
       const token =
         rawToken && rawToken.startsWith('"') ? JSON.parse(rawToken) : rawToken;
-      const response = await axios.get(
-        "http://localhost:5000/api/diet-plans/all-diet-plans",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // must be in Bearer format
-          },
-        }
-      );
+      const response = await http.get("/diet-plans/all-diet-plans");
       setDietPlans(response.data);
       setLoading(false);
     } catch (error) {

@@ -6,9 +6,9 @@ import GoogleSvg from "../../assets/icons8-google.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import "../../css/Login.css";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { auth, provider, signInWithPopup } from "../../firebase";
+import { http } from "../../api/http";
 
 // Import your modal
 import ForgotPasswordModal from "./ForgotPassword";
@@ -24,9 +24,7 @@ const Login = () => {
       const token = localStorage.getItem("auth");
       if (token) {
         try {
-          await axios.get("http://localhost:5000/api/auth/me", {
-            headers: { Authorization: `Bearer ${JSON.parse(token)}` },
-          });
+          await http.get("/auth/me");
           navigate("/profile");
         } catch (error) {
           localStorage.removeItem("auth");
@@ -51,8 +49,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+      const response = await http.post("/auth/login",
         { email, password }
       );
 
@@ -84,10 +81,9 @@ const Login = () => {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
-        { token: idToken },
-        { withCredentials: true }
+      const response = await http.post(
+        "/auth/google-login",
+        { token: idToken }
       );
 
       localStorage.setItem("auth", JSON.stringify(response.data.token));

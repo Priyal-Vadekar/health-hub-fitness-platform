@@ -1,7 +1,6 @@
 // frontend/src/Components/Admin/Trainer.js
 import React, { useState, useEffect, useRef } from "react";
 import { FiCheck } from "react-icons/fi";
-import axios from "axios";
 import { Modal, Button, Dropdown, DropdownButton, Form, Collapse } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
@@ -10,6 +9,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const TrainerList = () => {
   const [showAdd, setShowAdd] = useState(false);
@@ -35,18 +35,6 @@ const TrainerList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // ── BUG FIX 03: Token fix
-  // Original code used localStorage.getItem("token") in some places (wrong key — always null)
-  // Auth token is stored under "auth" key as a JSON stringified value
-  const getAuthToken = () => {
-    const raw = localStorage.getItem("auth");
-    return raw ? JSON.parse(raw) : null;
-  };
-  const authHeaders = () => {
-    const token = getAuthToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   useEffect(() => {
     fetchTrainers();
     fetchUsers();
@@ -64,21 +52,21 @@ const TrainerList = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/users", { headers: authHeaders() });
+      const res = await http.get("/api/users");
       if (res.data.success) setMembers(res.data.data.filter((u) => u.role === "Member"));
     } catch (err) { console.error("Error fetching members:", err); }
   };
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/users", { headers: authHeaders() });
+      const res = await http.get("/api/users");
       if (res.data.success) setUsers(res.data.data.filter((u) => u.role === "Trainer"));
     } catch (err) { console.error("Error fetching users:", err); }
   };
 
   const fetchTrainers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/staff", { headers: authHeaders() });
+      const res = await http.get("/api/staff");
       setTrainers((res.data.data || []).filter((s) => s.role === "Trainer"));
     } catch (error) { console.error("Error fetching trainers:", error); }
     finally { setLoading(false); }
@@ -98,7 +86,7 @@ const TrainerList = () => {
     formData.append("role", "Trainer");
     formData.append("image", newTrainer.image);
     try {
-      await axios.post("http://localhost:5000/api/staff/new-staff", formData, { headers: authHeaders() });
+      await http.post("/staff/new-staff", formData);
       setShowAdd(false);
       setNewTrainer(initialTrainerState);
       fetchTrainers();
@@ -108,7 +96,7 @@ const TrainerList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/staff/delete-staff/${deleteTrainerId}`);
+      await http.delete(`/staff/delete-staff/${deleteTrainerId}`);
       setTrainers((prev) => prev.filter((t) => t._id !== deleteTrainerId));
       setShowDeleteModal(false);
       toast.success("Trainer deleted!");
@@ -117,10 +105,9 @@ const TrainerList = () => {
 
   const handleSaveEdit = async () => {
     try {
-      await axios.patch(
-        `http://localhost:5000/api/staff/update-staff/${currentTrainer._id}`,
-        { specialty: currentTrainer.specialty, description: currentTrainer.description },
-        { headers: authHeaders() }
+      await http.patch(
+        `/staff/update-staff/${currentTrainer._id}`,
+        { specialty: currentTrainer.specialty, description: currentTrainer.description }
       );
       setTrainers((prev) => prev.map((t) => t._id === currentTrainer._id ? currentTrainer : t));
       toast.success("Trainer updated!");
@@ -149,10 +136,9 @@ const TrainerList = () => {
     if (!currentTrainer?.user?._id) { toast.error("Trainer not found"); return; }
     try {
       // ── FIX: send auth header — original had no/wrong token → 404 "No token provided"
-      const res = await axios.patch(
-        `http://localhost:5000/api/admin/trainers/${currentTrainer.user._id}/assign-members`,
-        { memberIds: selectedMemberIds },
-        { headers: authHeaders() }
+      const res = await http.patch(
+        `/admin/trainers/${currentTrainer.user._id}/assign-members`,
+        { memberIds: selectedMemberIds }
       );
       if (res.data.success) {
         toast.success(selectedMemberIds.length === 0 ? "All unassigned" : `${res.data.data.modifiedCount} assigned!`);

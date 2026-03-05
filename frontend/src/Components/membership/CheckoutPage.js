@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "../../css/StripePaymentPage.css";
 import { toast } from "react-toastify";
+import { http } from "../../api/http";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -108,10 +108,9 @@ const CheckoutPage = () => {
         navigate("/login");
         return;
       }
-      const res = await axios.post(
-        "http://localhost:5000/api/stripe/create-checkout-session",
-        { membershipPlanId, withPersonalTrainer },
-        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+      const res = await http.post(
+        "/stripe/create-checkout-session",
+        { membershipPlanId, withPersonalTrainer }
       );
       if (res.data?.url) window.location.href = res.data.url;
       else toast.error("Could not start Stripe checkout");
@@ -145,13 +144,9 @@ const CheckoutPage = () => {
       }
 
       // Create Razorpay order
-      const res = await axios.post(
-        "http://localhost:5000/api/razorpay/create-order",
-        { membershipPlanId, withPersonalTrainer },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+      const res = await http.post(
+        "/razorpay/create-order",
+        { membershipPlanId, withPersonalTrainer }
       );
 
       if (!res.data.success) {
@@ -168,9 +163,8 @@ const CheckoutPage = () => {
         amount: amount,
         currency: currency,
         name: "HealthHub",
-        description: `${membership.title} - ${membership.duration} Month${
-          membership.duration > 1 ? "s" : ""
-        }`,
+        description: `${membership.title} - ${membership.duration} Month${membership.duration > 1 ? "s" : ""
+          }`,
         order_id: orderId,
         handler: function (response) {
           navigate(
@@ -221,10 +215,9 @@ const CheckoutPage = () => {
         navigate("/login");
         return;
       }
-      await axios.post(
-        "http://localhost:5000/api/bank-transfer/submit",
-        { membershipPlanId, withPersonalTrainer, referenceNumber, note },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await http.post(
+        "/bank-transfer/submit",
+        { membershipPlanId, withPersonalTrainer, referenceNumber, note }
       );
       toast.success("Bank transfer submitted. We'll verify and notify you.");
       navigate("/profile");

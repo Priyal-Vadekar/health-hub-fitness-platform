@@ -1,12 +1,12 @@
 // frontend/src/Components/Admin/Feedback.js
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Button, Form, Modal } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import "./css/Staff.css";
+import { http } from "../../api/http";
 
 const FeedbackList = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -23,9 +23,7 @@ const FeedbackList = () => {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/testimonials/all-testimonials"
-      );
+      const response = await http.get("/testimonials/all-testimonials");
       if (response.data) setFeedbacks(response.data);
     } catch (error) {
       console.error("Error fetching testimonials:", error);
@@ -45,9 +43,7 @@ const FeedbackList = () => {
   const deleteFeedback = async () => {
     if (!currentDeleteFeedback) return;
     try {
-      await axios.delete(
-        `http://localhost:5000/api/testimonials/delete-testimonial/${currentDeleteFeedback._id}`
-      );
+      await http.delete(`/testimonials/delete-testimonial/${currentDeleteFeedback._id}`);
       fetchFeedbacks();
       setShowDeleteModal(false);
       setCurrentDeleteFeedback(null);

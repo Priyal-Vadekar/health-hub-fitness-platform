@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../css/Sidebar.css';
-import axios from 'axios';
+import { http } from "../../api/http";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -19,7 +19,7 @@ const Sidebar = () => {
 
   const fetchRole = async (email) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/auth/user-role?email=${email}`);
+      const response = await http.get(`/auth/user-role?email=${email}`);
       if (response.data.role) {
         setRole(response.data.role);
       }

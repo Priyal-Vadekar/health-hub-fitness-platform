@@ -2,9 +2,9 @@
 // Razorpay Payment Integration (Test Mode Only)
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "../../css/StripePaymentPage.css";
 import { toast } from "react-toastify";
+import { http } from "../../api/http";
 
 // Load Razorpay SDK dynamically
 const loadRazorpayScript = (src) =>
@@ -112,13 +112,9 @@ const RazorpayPaymentPage = () => {
       }
 
       // Create Razorpay order
-      const orderRes = await axios.post(
-        "http://localhost:5000/api/razorpay/create-order",
-        { userMembershipId },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+      const orderRes = await http.post(
+        "/razorpay/create-order",
+        { userMembershipId }
       );
 
       if (!orderRes.data.success) {
@@ -134,9 +130,8 @@ const RazorpayPaymentPage = () => {
         amount: amount, // Amount in paise
         currency: currency,
         name: "HealthHub",
-        description: `${membership.title} - ${membership.duration} Month${
-          membership.duration > 1 ? "s" : ""
-        }`,
+        description: `${membership.title} - ${membership.duration} Month${membership.duration > 1 ? "s" : ""
+          }`,
         order_id: orderId,
         handler: function (response) {
           // Payment successful - redirect to success page with payment details

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { http } from "../../api/http";
 
 export const About = () => {
   const [stats, setStats] = useState({ members: 0, staff: 0, dietitians: 0 });
@@ -7,12 +7,9 @@ export const About = () => {
   const [staffData, setStaffData] = useState([]);
   const [staffLoading, setStaffLoading] = useState(true);
 
-  // ── Bug 1 Fix: Use /public-stats instead of /api/users ──────────────────
-  // Previously fetched users into `users` state but computed counts
-  // from `getdata`, `getbookdata`, `staffData` which were never fetched → always 0
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/users/public-stats")
+    http
+      .get("/users/public-stats")
       .then((res) => {
         setStats({
           members: res.data.members || 0,
@@ -24,11 +21,9 @@ export const About = () => {
       .finally(() => setStatsLoading(false));
   }, []);
 
-  // ── Bug 2 Fix: Actually fetch staff data ─────────────────────────────────
-  // Previously staffData was declared but no useEffect ever fetched it → always []
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/staff")
+    http
+      .get("/staff")
       .then((res) => {
         const list = res.data.data || res.data;
         setStaffData(Array.isArray(list) ? list : []);

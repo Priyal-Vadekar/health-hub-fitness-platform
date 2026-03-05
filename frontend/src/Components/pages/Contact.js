@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { http } from "../../api/http";
 
 export const Contact = () => {
   const [user, setUser] = useState({ name: "", email: "" });
@@ -11,9 +11,7 @@ export const Contact = () => {
         const token = localStorage.getItem("auth"); // Retrieve token from localStorage
         if (!token) return; // If no token, exit (user is not logged in)
 
-        const response = await axios.get("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await http.get("/auth/me");
 
         setUser({ name: response.data.name, email: response.data.email });
         setIsLoggedIn(true); // User is logged in

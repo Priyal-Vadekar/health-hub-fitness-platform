@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const ShowExercises = () => {
   const navigate = useNavigate();
@@ -18,12 +19,8 @@ const ShowExercises = () => {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/workouts/${id}`
-        );
+        const response = await http.length(`/api/workouts/${id}`);
         const data = await response.json();
-
-        console.log("Fetched workout data:", data); // Debugging output
 
         if (data.success && data.data) {
           setTitle(data.data.title || "Workout Exercises");

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../Components/layout/Layout';
 import '../../css/AnnouncementPage.css';
+import { http } from "../../api/http";
 
 const AnnouncementPage = () => {
   const [announcements, setAnnouncements] = useState([]);
@@ -9,16 +10,9 @@ const AnnouncementPage = () => {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const token = localStorage.getItem("auth");
-        const authToken = token ? JSON.parse(token) : null;
-        
-        const response = await fetch('http://localhost:5000/api/announcements/all-announcements?role=Member', {
-          headers: {
-            'Authorization': `Bearer ${authToken}`
-          }
-        });
+        const response = await http.get('/announcements/all-announcements?role=Member',);
         const data = await response.json();
-        
+
         let announcementsList = [];
         if (data.success) {
           announcementsList = data.data || [];
@@ -41,7 +35,7 @@ const AnnouncementPage = () => {
         setAnnouncements([]);
       }
     };
-    
+
     fetchAnnouncements();
   }, []);
 

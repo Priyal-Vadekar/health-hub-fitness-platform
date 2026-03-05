@@ -9,7 +9,7 @@ import {
   signInWithEmailAndPassword,
   getIdToken,
 } from "firebase/auth";
-import axios from "axios";
+import { http } from "./api/http";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -34,10 +34,9 @@ const signInWithGoogle = async () => {
     const token = await getIdToken(user);
 
     // Send token to backend
-    const response = await axios.post(
-      "http://localhost:5000/api/auth/google-login",
-      { token },
-      { withCredentials: true }
+    const response = await http.post(
+      "/auth/google-login",
+      { token }
     );
 
     // Save JWT token from backend

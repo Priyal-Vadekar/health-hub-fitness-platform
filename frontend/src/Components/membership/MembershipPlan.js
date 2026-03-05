@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../../css/MembershipPlan.css";
+import { http } from "../../api/http";
 
 const MembershipPlan = () => {
   const [membershipPlans, setMembershipPlans] = useState([]);
@@ -17,9 +17,7 @@ const MembershipPlan = () => {
   useEffect(() => {
     const fetchMembershipPlans = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/membership-plans"
-        );
+        const response = await http.get("/membership-plans");
         setMembershipPlans(response.data);
       } catch (error) {
         console.error("Error fetching membership plans:", error);
@@ -102,12 +100,7 @@ const MembershipPlan = () => {
       }
 
       // Get current user ID
-      const userResponse = await axios.get(
-        "http://localhost:5000/api/auth/me",
-        {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
-      );
+      const userResponse = await http.get("/auth/me");
       const userId = userResponse.data._id;
 
       // Don't create UserMembership yet - pass plan details to checkout
@@ -174,9 +167,8 @@ const MembershipPlan = () => {
           <div className="personal-trainer">
             <button
               onClick={handlePersonalTrainerToggle}
-              className={`personal-trainer-btn ${
-                withPersonalTrainer ? "selected" : ""
-              }`}
+              className={`personal-trainer-btn ${withPersonalTrainer ? "selected" : ""
+                }`}
             >
               {withPersonalTrainer
                 ? "Remove Personal Trainer"

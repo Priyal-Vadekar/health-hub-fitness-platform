@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../layout/Layout';
 import '../../css/Profile.css';
 import DietPlanReportForm from '../DietPlanReportForm';
-import http from '../../api/http'; // <-- your axios instance that adds Authorization header
+import http from '../../api/http';
 
 const MyProfile = () => {
   const [user, setUser] = useState({
@@ -131,7 +131,7 @@ const MyProfile = () => {
               Search Your Diet Plan
             </button>
 
-            
+
           </div>
         </div>
 

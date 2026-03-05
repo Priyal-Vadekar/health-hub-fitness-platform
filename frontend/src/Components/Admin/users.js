@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Modal, Button, Dropdown, DropdownButton, Form, Collapse } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
@@ -9,14 +8,9 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const UserList = () => {
-  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-  const ADMIN_BASE = `${API_BASE}/admin`;
-  const getAuthToken = () => {
-    const raw = localStorage.getItem("auth");
-    return raw ? JSON.parse(raw) : null;
-  };
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [nameFilter, setNameFilter] = useState("");
@@ -65,10 +59,7 @@ const UserList = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const token = getAuthToken();
-      const res = await axios.get(`${API_BASE}/users`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await http.get(`/users`);
       if (res.data.success) {
         setUsers(res.data.data);
       } else {
@@ -89,10 +80,7 @@ const UserList = () => {
 
   const confirmDelete = async () => {
     try {
-      const token = getAuthToken();
-      await axios.delete(`${API_BASE}/users/${deleteUserId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      await http.delete(`/users/${deleteUserId}`);
       setUsers(prev => prev.filter(user => user._id !== deleteUserId));
       setShowDeleteModal(false);
       toast.success("User deleted successfully!");
@@ -104,11 +92,7 @@ const UserList = () => {
 
   const fetchDietitians = async () => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-      const res = await axios.get(`${ADMIN_BASE}/dietitians`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await http.get(`/admin/dietitians`);
       if (res.data.success) {
         setDietitians(res.data.data);
       }
@@ -119,11 +103,7 @@ const UserList = () => {
 
   const fetchTrainersList = async () => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-      const res = await axios.get(`${API_BASE}/staff/trainers`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await http.get(`/staff/trainers`);
       if (res.data.success) {
         setTrainers(res.data.data || []);
       }
@@ -150,11 +130,9 @@ const UserList = () => {
       return;
     }
     try {
-      const token = getAuthToken();
-      await axios.patch(
-        `${ADMIN_BASE}/users/${selectedMember._id}/assign-dietitian`,
-        { dietitianId: selectedDietitianId },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      await http.patch(
+        `/admin/users/${selectedMember._id}/assign-dietitian`,
+        { dietitianId: selectedDietitianId }
       );
       setUsers((prev) =>
         prev.map((user) =>
@@ -178,11 +156,9 @@ const UserList = () => {
       return;
     }
     try {
-      const token = getAuthToken();
-      await axios.patch(
-        `${ADMIN_BASE}/users/${selectedMember._id}/assign-trainer`,
-        { trainerId: selectedTrainerId },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      await http.patch(
+        `/admin/users/${selectedMember._id}/assign-trainer`,
+        { trainerId: selectedTrainerId }
       );
       setUsers((prev) =>
         prev.map((user) =>
@@ -212,12 +188,6 @@ const UserList = () => {
     }
 
     try {
-      const token = getAuthToken();
-      if (!token) {
-        toast.error("Authentication required");
-        return;
-      }
-
       const payload = { role: currentUser.role };
       if (["RD", "RDN"].includes(currentUser.role)) {
         payload.specialization = currentUser.specialization || "";
@@ -226,9 +196,7 @@ const UserList = () => {
         payload.isCertified = currentUser.isCertified;
       }
 
-      const res = await axios.patch(`${ADMIN_BASE}/users/${currentUser._id}/role`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await http.patch(`/admin/users/${currentUser._id}/role`, payload);
 
       if (res.data.success) {
         const updatedUser = res.data.data || res.data.user || currentUser;

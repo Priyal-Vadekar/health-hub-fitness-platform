@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
 import "../../css/StripePaymentPage.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const StripePaymentPage = () => {
   const location = useLocation();
@@ -31,9 +31,7 @@ const StripePaymentPage = () => {
   const verifyPaymentStatus = async (sessionId) => {
     try {
       setProcessing(true);
-      const response = await axios.get(
-        `http://localhost:5000/api/stripe/verify-payment/${sessionId}`
-      );
+      const response = await http.get(`/stripe/verify-payment/${sessionId}`);
 
       if (response.data.paid) {
         setPaymentStatus("success");
@@ -70,15 +68,9 @@ const StripePaymentPage = () => {
         return;
       }
 
-      const response = await axios.post(
-        "http://localhost:5000/api/stripe/create-checkout-session",
-        { userMembershipId },
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-          withCredentials: true,
-        }
+      const response = await http.post(
+        "/stripe/create-checkout-session",
+        { userMembershipId }
       );
 
       if (response.data.success && response.data.url) {

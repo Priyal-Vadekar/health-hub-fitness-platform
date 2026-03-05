@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
 import './css/Profile.css';
-import axios from 'axios';
 import { Header } from "./Header";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { http } from "../../api/http";
 
 const AdminMyProfile = () => {
   const [user, setUser] = useState({
@@ -33,11 +31,7 @@ const AdminMyProfile = () => {
       }
 
       try {
-        const response = await axios.get(`${API_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await http.get(`/auth/me`);
 
         if (response.data) {
           const userData = {
@@ -100,19 +94,9 @@ const AdminMyProfile = () => {
     }
 
     try {
-      const rawToken = localStorage.getItem('auth');
-      const token = rawToken ? JSON.parse(rawToken) : null;
-      if (!token) {
-        toast.error('Authentication token not found. Please login again.');
-        return;
-      }
-
-      const response = await axios.put(
-        `${API_URL}/auth/change-password`,
-        { currentPassword: editedUser.currentPassword, newPassword: editedUser.newPassword },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await http.put(
+        `/auth/change-password`,
+        { currentPassword: editedUser.currentPassword, newPassword: editedUser.newPassword }
       );
 
       if (response.data.message || response.status === 200) {

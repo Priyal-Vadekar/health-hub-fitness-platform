@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Modal, Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import "./css/Staff.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const MembershipPlans = () => {
   const [plans, setPlans] = useState([]);
@@ -67,9 +67,7 @@ const MembershipPlans = () => {
   };
   const fetchPlans = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/membership-plans"
-      );
+      const response = await http.get("/membership-plans");
       setPlans(response.data);
       setLoading(false);
     } catch (error) {
@@ -130,9 +128,8 @@ const MembershipPlans = () => {
         errors.personalTrainerCharge = "Trainer fee must be at least ₹1000.";
       } else if (charge > price / 4) {
         // Trainer fee must not exceed 1/4 of the plan price
-        errors.personalTrainerCharge = `Trainer fee must not exceed 1/4 of the Plan price.<br>Which is ₹${
-          price / 4
-        } ( 1/4 * ₹${price} ).`;
+        errors.personalTrainerCharge = `Trainer fee must not exceed 1/4 of the Plan price.<br>Which is ₹${price / 4
+          } ( 1/4 * ₹${price} ).`;
       }
     }
 
@@ -154,7 +151,6 @@ const MembershipPlans = () => {
     setFormErrors({}); // Clear errors
 
     try {
-      const token = localStorage.getItem("auth");
       const formData = new FormData();
 
       formData.append("plan", newPlan.plan);
@@ -176,16 +172,8 @@ const MembershipPlans = () => {
         formData.append("benefits[]", benefit);
       });
 
-      await axios.post(
-        "http://localhost:5000/api/membership-plans/new-membership-plan",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await http.post("/membership-plans/new-membership-plan",
+        formData);
 
       setShowAddModal(false);
       setNewPlan(initialPlanState);
@@ -248,9 +236,8 @@ const MembershipPlans = () => {
         errors.personalTrainerCharge = "Trainer fee must be at least ₹1000.";
       } else if (charge > price / 4) {
         // Trainer fee must not exceed 1/4 of the plan price
-        errors.personalTrainerCharge = `Trainer fee must not exceed 1/4 of the Plan price.<br>Which is ₹${
-          price / 4
-        } ( 1/4 * ₹${price} ).`;
+        errors.personalTrainerCharge = `Trainer fee must not exceed 1/4 of the Plan price.<br>Which is ₹${price / 4
+          } ( 1/4 * ₹${price} ).`;
       }
     }
 
@@ -272,7 +259,6 @@ const MembershipPlans = () => {
 
     setFormErrors({}); // Clear errors
     try {
-      const token = localStorage.getItem("auth");
       const formData = new FormData();
 
       formData.append("plan", editPlan.plan);
@@ -295,15 +281,9 @@ const MembershipPlans = () => {
       });
 
       // Make PUT request to update the plan
-      await axios.put(
-        `http://localhost:5000/api/membership-plans/update-membership-plan/${editPlan._id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+      await http.put(
+        `/membership-plans/update-membership-plan/${editPlan._id}`,
+        formData
       );
 
       setShowEditModal(false);
@@ -318,8 +298,8 @@ const MembershipPlans = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/membership-plans/delete-membership-plan/${deletePlanId}`
+      await http.delete(
+        `/membership-plans/delete-membership-plan/${deletePlanId}`
       );
       setShowDeleteModal(false);
       fetchPlans(); // Refresh list
@@ -381,11 +361,10 @@ const MembershipPlans = () => {
                             <td>₹{plan.personalTrainerCharge}</td>
                             <td>
                               <span
-                                className={`badge ${
-                                  plan.personalTrainerAvailable
-                                    ? "bg-success"
-                                    : "bg-danger"
-                                }`}
+                                className={`badge ${plan.personalTrainerAvailable
+                                  ? "bg-success"
+                                  : "bg-danger"
+                                  }`}
                               >
                                 {plan.personalTrainerAvailable ? "Yes" : "No"}
                               </span>

@@ -6,11 +6,11 @@ import GoogleSvg from "../../assets/icons8-google.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import "../../css/Register.css";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { auth, provider } from "../../firebase";
 import VerifyEmailModal from "./VerifyEmail";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { http } from "../../api/http";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,8 +55,7 @@ const Register = () => {
       role: "Member",
     };
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+      const response = await http.post("/auth/register",
         formData
       );
       toast.success(
@@ -75,12 +74,11 @@ const Register = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      const idToken = await user.getIdToken(); // ✅ Correct token retrieval
+      const idToken = await user.getIdToken();
 
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
-        { token: idToken },
-        { withCredentials: true }
+      const response = await http.post(
+        "/auth/google-login",
+        { token: idToken }
       );
 
       localStorage.setItem("auth", JSON.stringify(response.data.token));

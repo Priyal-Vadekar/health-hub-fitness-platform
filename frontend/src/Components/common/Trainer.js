@@ -1,13 +1,13 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Trainercardprops from "./Trainercardprops";
+import { http } from "../../api/http";
 
 export const Trainer = () => {
   const [trainers, setTrainers] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/staff/") // ✅ Correct API URL
+    http
+      .get("/staff/")
       .then((res) => {
         setTrainers(res.data.data.filter((staff) => staff.role === "Trainer")); // Only show Trainers
       })

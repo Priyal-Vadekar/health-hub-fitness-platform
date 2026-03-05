@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import {
   Modal,
   Button,
@@ -15,6 +14,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const StaffList = () => {
   const [showAdd, setShowAdd] = useState(false);
@@ -72,10 +72,7 @@ const StaffList = () => {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await http.get("/users");
       const filteredUsers = res.data.data.filter(
         (user) => user.role === "Trainer" || user.role === "Staff"
       );
@@ -87,10 +84,7 @@ const StaffList = () => {
 
   const fetchStaff = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/staff", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await http.get("/staff");
       setStaffs(response.data.data); // Set all staff here
     } catch (error) {
       console.error("Error fetching staff:", error);
@@ -138,14 +132,7 @@ const StaffList = () => {
     console.log([...formData.entries()]); // Keep the log for debugging
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:5000/api/staff/new-staff",
-        formData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await http.post("/staff/new-staff", formData);
 
       if (response.data.success) {
         setShowAdd(false);
@@ -159,7 +146,7 @@ const StaffList = () => {
       console.error("Error adding Staff:", error);
       toast.error(
         error.response?.data?.message ||
-          "Failed to add Staff. Please try again."
+        "Failed to add Staff. Please try again."
       );
     }
   };
@@ -171,9 +158,7 @@ const StaffList = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/staff/delete-staff/${deleteStaffId}`
-      );
+      await http.delete(`/staff/delete-staff/${deleteStaffId}`);
       setStaffs((prev) => prev.filter((Staff) => Staff._id !== deleteStaffId));
       setShowDeleteModal(false);
       toast.success("Staff deleted successfully!");
@@ -190,18 +175,11 @@ const StaffList = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const token = localStorage.getItem("auth");
       const updated = {
         specialty: currentStaff.specialty,
         description: currentStaff.description,
       };
-      await axios.patch(
-        `http://localhost:5000/api/staff/update-staff/${currentStaff._id}`,
-        updated,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await http.patch(`/staff/update-staff/${currentStaff._id}`, updated);
       setStaffs((prev) =>
         prev.map((t) => (t._id === currentStaff._id ? currentStaff : t))
       );
@@ -442,7 +420,7 @@ const StaffList = () => {
                         onClick={() =>
                           setCurrentPage((prev) =>
                             prev <
-                            Math.ceil(filteredStaffs.length / rowsPerPage)
+                              Math.ceil(filteredStaffs.length / rowsPerPage)
                               ? prev + 1
                               : prev
                           )

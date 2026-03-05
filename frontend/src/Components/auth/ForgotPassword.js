@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import axios from "axios";
 import { toast } from "react-toastify";
+import { http } from "../../api/http";
 
 const ForgotPasswordModal = ({ show, onHide }) => {
   const [email, setEmail] = useState("");
@@ -11,9 +11,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/auth/forgot-password", {
-        email,
-      });
+      await http.post("/forgot-password", { email, });
       toast.success("Password reset email sent! Check your inbox.");
       setEmail("");
       onHide();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../css/Workout.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const Workouts = ({ workoutId, titleOverride }) => {
   const [exercises, setExercises] = useState([]);
@@ -13,9 +14,7 @@ const Workouts = ({ workoutId, titleOverride }) => {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/workouts/${workoutId}`
-        );
+        const response = await http.get(`/workouts/${workoutId}`);
         const data = await response.json();
 
         if (data.success && data.data) {

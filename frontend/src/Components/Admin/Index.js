@@ -6,7 +6,6 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer, LineChart, Line,
 } from "recharts";
-import axios from "axios";
 import "./css/index.css";
 import { Header } from "./Header";
 import { Button, Collapse, Form } from "react-bootstrap";
@@ -14,8 +13,7 @@ import moment from "moment";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toast } from "react-toastify";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { http } from "../../api/http";
 
 export const Index = () => {
   const componentPDF = useRef();
@@ -35,16 +33,13 @@ export const Index = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("auth");
-    const headers = token ? { Authorization: `Bearer ${JSON.parse(token)}` } : {};
-
     const fetchData = async () => {
       try {
         setLoading(true);
         const [countsRes, trainersRes, paymentsRes] = await Promise.allSettled([
-          axios.get(`${API_URL}/users/report/dashboard-counts`, { headers }),
-          axios.get(`${API_URL}/staff/trainers`, { headers }),
-          axios.get(`${API_URL}/transactions/all-payments`, { headers })
+          http.get(`/users/report/dashboard-counts`),
+          http.get(`/staff/trainers`),
+          http.get(`/transactions/all-payments`)
         ]);
 
         if (countsRes.status === "fulfilled" && countsRes.value.data.success) {
@@ -66,12 +61,12 @@ export const Index = () => {
           membershipGrowthRes, revenueRes, outstandingRes,
           trainerPerformanceRes, dietPlanPopularityRes, adminDietitiansRes
         ] = await Promise.allSettled([
-          axios.get(`${API_URL}/users/report/membership-growth`, { headers }),
-          axios.get(`${API_URL}/transactions/report/revenue`, { headers }),
-          axios.get(`${API_URL}/transactions/report/outstanding`, { headers }),
-          axios.get(`${API_URL}/staff/report/performance`, { headers }),
-          axios.get(`${API_URL}/assigned-dietplans/report/popularity`, { headers }),
-          axios.get(`${API_URL}/admin/dietitians`, { headers })
+          http.get(`/users/report/membership-growth`),
+          http.get(`/transactions/report/revenue`),
+          http.get(`/transactions/report/outstanding`),
+          http.get(`/staff/report/performance`),
+          http.get(`/assigned-dietplans/report/popularity`),
+          http.get(`/admin/dietitians`)
         ]);
 
         if (membershipGrowthRes.status === "fulfilled" && membershipGrowthRes.value.data.success) {

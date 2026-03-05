@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { Modal, Button, Dropdown, DropdownButton, Form, Collapse } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
@@ -8,15 +7,9 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const PaymentsList = () => {
-    const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-
-    const getAuthToken = () => {
-        const raw = localStorage.getItem("auth");
-        return raw ? JSON.parse(raw) : null;
-    };
-
     const [payments, setPayments] = useState([]);
     const [filteredPayments, setFilteredPayments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -46,10 +39,7 @@ const PaymentsList = () => {
     const fetchPayments = async () => {
         try {
             setLoading(true);
-            const token = getAuthToken();
-            const response = await axios.get(`${API_BASE}/transactions/all-payments`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {}
-            });
+            const response = await http.get(`/transactions/all-payments`);
             if (response.data.success) {
                 setPayments(response.data.data || []);
             } else {
@@ -81,12 +71,7 @@ const PaymentsList = () => {
     const confirmDelete = async () => {
         if (!deletePaymentId) return toast.error("No payment selected for deletion");
         try {
-            const token = getAuthToken();
-            if (!token) return toast.error("Authentication required");
-
-            const response = await axios.delete(`${API_BASE}/transactions/delete-payment/${deletePaymentId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await http.delete(`/transactions/delete-payment/${deletePaymentId}`);
 
             if (response.status === 200 || response.data?.message) {
                 setPayments((prev) => prev.filter((p) => p._id !== deletePaymentId));
@@ -105,19 +90,14 @@ const PaymentsList = () => {
     const handleSavePayment = async () => {
         if (!selectedPayment || !selectedPayment.status) return toast.error("Status is required");
         try {
-            const token = getAuthToken();
-            if (!token) return toast.error("Authentication required");
-
             const payload = {
                 status: selectedPayment.status,
                 paymentMethod: selectedPayment.paymentMethod || selectedPayment.paymentMethod,
             };
 
-            const response = await axios.put(
-                `${API_BASE}/transactions/update-payment/${selectedPayment._id}`,
-                payload,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const response = await http.put(
+                `/transactions/update-payment/${selectedPayment._id}`,
+                payload);
 
             if (response.data.success || response.data.payment) {
                 const updatedPayment = response.data.payment || response.data.data || { ...selectedPayment, ...payload };
@@ -244,13 +224,13 @@ const PaymentsList = () => {
                                             className="form-control border border-secondary"
                                             style={{ height: "45px", width: "150px" }}
                                         >
-                                            {[2,5,10,15,20].map((n) => <option key={n} value={n}>Show {n} rows</option>)}
+                                            {[2, 5, 10, 15, 20].map((n) => <option key={n} value={n}>Show {n} rows</option>)}
                                         </Form.Select>
 
                                         <div>
-                                            <Button variant="secondary" onClick={() => setCurrentPage(prev => Math.max(prev-1,1))} disabled={currentPage===1} className="me-2">Previous</Button>
+                                            <Button variant="secondary" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="me-2">Previous</Button>
                                             <span>Page {currentPage} of {totalPages}</span>
-                                            <Button variant="secondary" onClick={() => setCurrentPage(prev => Math.min(prev+1,totalPages))} disabled={currentPage===totalPages} className="ms-2">Next</Button>
+                                            <Button variant="secondary" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="ms-2">Next</Button>
                                         </div>
                                     </div>
                                 </div>
@@ -289,31 +269,31 @@ const PaymentsList = () => {
                         <Form>
                             <Form.Group className="mb-3">
                                 <Form.Label>Status</Form.Label>
-                                <Form.Select value={selectedPayment.status} onChange={(e)=>setSelectedPayment({...selectedPayment,status:e.target.value})}>
-                                    {["Pending","Completed","Failed","Refunded","Canceled"].map(s => <option key={s} value={s}>{s}</option>)}
+                                <Form.Select value={selectedPayment.status} onChange={(e) => setSelectedPayment({ ...selectedPayment, status: e.target.value })}>
+                                    {["Pending", "Completed", "Failed", "Refunded", "Canceled"].map(s => <option key={s} value={s}>{s}</option>)}
                                 </Form.Select>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Payment Method</Form.Label>
-                                <Form.Control type="text" value={selectedPayment.paymentMethod || ""} onChange={(e)=>setSelectedPayment({...selectedPayment,paymentMethod:e.target.value})} placeholder="e.g., Stripe, Razorpay"/>
+                                <Form.Control type="text" value={selectedPayment.paymentMethod || ""} onChange={(e) => setSelectedPayment({ ...selectedPayment, paymentMethod: e.target.value })} placeholder="e.g., Stripe, Razorpay" />
                             </Form.Group>
                         </Form>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={()=>setShowEditModal(false)}>Cancel</Button>
+                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>Cancel</Button>
                     <Button variant="primary" onClick={handleSavePayment}>Save Changes</Button>
                 </Modal.Footer>
             </Modal>
 
             {/* Delete Modal */}
-            <Modal show={showDeleteModal} onHide={()=>setShowDeleteModal(false)} centered>
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Delete Payment</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>Are you sure you want to delete this payment?</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={()=>setShowDeleteModal(false)}>Cancel</Button>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
                     <Button variant="danger" onClick={confirmDelete}>Delete</Button>
                 </Modal.Footer>
             </Modal>

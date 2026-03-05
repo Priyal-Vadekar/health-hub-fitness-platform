@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Button, Form } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
@@ -7,8 +6,7 @@ import "./css/Staff.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { http } from "../../api/http";
 
 const RoleSimulator = () => {
   const navigate = useNavigate();
@@ -20,11 +18,6 @@ const RoleSimulator = () => {
   const [simulatedRole, setSimulatedRole] = useState("");
   const [simulatedUser, setSimulatedUser] = useState(null);
 
-  const getAuthToken = () => {
-    const raw = localStorage.getItem("auth");
-    return raw ? JSON.parse(raw) : null;
-  };
-
   useEffect(() => {
     fetchUsersByRole();
   }, [selectedRole]);
@@ -34,10 +27,7 @@ const RoleSimulator = () => {
 
     try {
       setLoading(true);
-      const token = getAuthToken();
-      const res = await axios.get(`${API_BASE}/users`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await http.get(`/users`);
 
       if (res.data.success) {
         const filtered = (res.data.data || []).filter(
@@ -68,8 +58,7 @@ const RoleSimulator = () => {
     setSimulatedUser(userToSimulate);
     setSimulationMode(true);
     toast.success(
-      `Simulating ${selectedRole} view${
-        userToSimulate ? ` for ${userToSimulate.name}` : ""
+      `Simulating ${selectedRole} view${userToSimulate ? ` for ${userToSimulate.name}` : ""
       }`
     );
   };

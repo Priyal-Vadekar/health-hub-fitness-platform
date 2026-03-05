@@ -1,46 +1,15 @@
 // frontend/src/Components/Admin/Dietitians.js
-//
-// ── STATUS FIELD NOTE ─────────────────────────────────────────────────────────
-// The User model does NOT have a "status" field (only name, email, role,
-// isCertified, specialization etc). Two options:
-//
-// OPTION A (recommended, no DB migration): Toggle "isCertified" badge as a
-// quick Active/Inactive proxy — but that conflates two different concepts.
-//
-// OPTION B (correct, requires 1-line User model change):
-// Add this to UserSchema:
-//   isActive: { type: Boolean, default: true }
-// Then use PATCH /api/admin/users/:id/role with body { isActive: false }
-// The updateUserRole controller already uses $set so it will accept any field.
-//
-// This file implements OPTION B. Add `isActive` to User model to enable it.
-// The UI shows "Active" / "Inactive" badge and the toggle will work immediately
-// after you add the field. If you haven't added it yet, it shows "Active" by default.
-// ─────────────────────────────────────────────────────────────────────────────
-
 import React, { useState, useEffect } from "react";
 import { FiCheck } from "react-icons/fi";
-import axios from "axios";
 import { Modal, Button, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import "./css/Staff.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-const ADMIN_BASE = `${API_BASE}/admin`;
+import { http } from "../../api/http";
 
 const DietitiansList = () => {
-  const getAuthToken = () => {
-    const raw = localStorage.getItem("auth");
-    return raw ? JSON.parse(raw) : null;
-  };
-  const authHeaders = () => {
-    const token = getAuthToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   const [dietitians, setDietitians] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +33,7 @@ const DietitiansList = () => {
   const fetchDietitians = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${ADMIN_BASE}/dietitians`, { headers: authHeaders() });
+      const res = await http.get(`/admin/dietitians`);
       if (res.data.success) setDietitians(res.data.data || []);
       else toast.error(res.data.message || "Failed to fetch dietitians");
     } catch (e) {
@@ -76,7 +45,7 @@ const DietitiansList = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/users`, { headers: authHeaders() });
+      const res = await http.get(`/users`);
       if (res.data.success) {
         setMembers((res.data.data || []).filter((u) => u.role === "Member"));
       }
@@ -91,7 +60,7 @@ const DietitiansList = () => {
       return;
     }
     try {
-      const res = await axios.post(`${API_BASE}/auth/register`, formData, { headers: authHeaders() });
+      const res = await http.post(`/auth/register`, formData);
       if (res.data.message) {
         toast.success("Dietitian created!");
         setShowCreateModal(false);
@@ -106,10 +75,9 @@ const DietitiansList = () => {
   const handleUpdateDietitian = async () => {
     if (!currentDietitian) return;
     try {
-      const res = await axios.patch(
-        `${ADMIN_BASE}/users/${currentDietitian._id}/role`,
-        { role: currentDietitian.role, specialization: currentDietitian.specialization || "", isCertified: currentDietitian.isCertified || false },
-        { headers: authHeaders() }
+      const res = await http.patch(
+        `/admin/users/${currentDietitian._id}/role`,
+        { role: currentDietitian.role, specialization: currentDietitian.specialization || "", isCertified: currentDietitian.isCertified || false }
       );
       if (res.data.success) {
         toast.success("Updated!");
@@ -134,10 +102,9 @@ const DietitiansList = () => {
   const handleAssignMembers = async () => {
     if (!currentDietitian) return;
     try {
-      const res = await axios.patch(
-        `${ADMIN_BASE}/dietitians/${currentDietitian._id}/assign-members`,
-        { memberIds: selectedMemberIds },
-        { headers: authHeaders() }
+      const res = await http.patch(
+        `/admin/dietitians/${currentDietitian._id}/assign-members`,
+        { memberIds: selectedMemberIds }
       );
       if (res.data.success) {
         toast.success(selectedMemberIds.length === 0 ? "All members unassigned" : `${res.data.data.modifiedCount} members assigned!`);
@@ -154,10 +121,9 @@ const DietitiansList = () => {
 
   const handleToggleCertification = async (d) => {
     try {
-      const res = await axios.patch(
-        `${ADMIN_BASE}/users/${d._id}/certification`,
-        { isCertified: !d.isCertified },
-        { headers: authHeaders() }
+      const res = await http.patch(
+        `/admin/users/${d._id}/certification`,
+        { isCertified: !d.isCertified }
       );
       if (res.data.success) { toast.success("Certification updated!"); fetchDietitians(); }
     } catch (e) {
@@ -171,10 +137,9 @@ const DietitiansList = () => {
   const handleToggleStatus = async (d) => {
     const newIsActive = !(d.isActive !== false); // default true if field missing
     try {
-      await axios.patch(
-        `${ADMIN_BASE}/users/${d._id}/role`,
-        { isActive: newIsActive },
-        { headers: authHeaders() }
+      await http.patch(
+        `/admin/users/${d._id}/role`,
+        { isActive: newIsActive }
       );
       toast.success(`Status set to ${newIsActive ? "Active" : "Inactive"}`);
       // Optimistic update
@@ -187,7 +152,7 @@ const DietitiansList = () => {
   const handleDelete = async () => {
     if (!deleteDietitianId) return;
     try {
-      await axios.delete(`${API_BASE}/users/${deleteDietitianId}`, { headers: authHeaders() });
+      await http.delete(`/users/${deleteDietitianId}`);
       toast.success("Dietitian deleted!");
       setShowDeleteModal(false);
       setDeleteDietitianId(null);

@@ -1,9 +1,7 @@
 // Membership.js
 import React, { useEffect, useState } from "react";
 import Layout from "../layout/Layout";
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import { http } from "../../api/http";
 
 const Membership = () => {
   const [membership, setMembership] = useState(null);
@@ -12,22 +10,15 @@ const Membership = () => {
   useEffect(() => {
     const fetchMembership = async () => {
       try {
-        const token = localStorage.getItem("auth");
-        const headers = token
-          ? { Authorization: `Bearer ${JSON.parse(token)}` }
-          : {};
         // Fetch userId from /api/auth/me
-        const meRes = await axios.get(`${API_URL}/auth/me`, { headers });
+        const meRes = await http.get(`/auth/me`);
         const userId = meRes.data && (meRes.data._id || meRes.data.data?._id);
         if (!userId) {
           setLoading(false);
           return;
         }
         // Now fetch the membership for this user
-        const res = await axios.get(
-          `${API_URL}/user-membership-plans/user/${userId}`,
-          { headers }
-        );
+        const res = await http.get(`/user-membership-plans/user/${userId}`);
         setMembership(res.data.data);
       } catch (err) {
         console.error("Failed to fetch membership", err);

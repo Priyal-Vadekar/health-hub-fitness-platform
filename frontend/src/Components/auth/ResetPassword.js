@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useParams, useNavigate } from "react-router-dom";
+import { http } from "../../api/http";
 
 const ResetPasswordModal = ({ show, onHide }) => {
   const { token } = useParams(); // get token from URL
@@ -22,7 +22,7 @@ const ResetPasswordModal = ({ show, onHide }) => {
 
     setIsLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/auth/reset-password", {
+      await http.post("/auth/reset-password", {
         token,
         newPassword: password,
       });

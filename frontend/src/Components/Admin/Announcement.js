@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Modal, Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import "./css/Staff.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const API_URL = "http://localhost:5000/api/announcements";
+import { http } from "../../api/http";
 
 const Announcement = () => {
   const [announcements, setAnnouncements] = useState([]);
@@ -63,10 +61,7 @@ const Announcement = () => {
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("auth");
-      const response = await axios.get(`${API_URL}/all-announcements`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const response = await http.get(`/announcements/all-announcements`);
       const payload = response.data;
       const list = Array.isArray(payload)
         ? payload
@@ -111,15 +106,9 @@ const Announcement = () => {
     setFormErrors({}); // Clear errors
 
     try {
-      const token = localStorage.getItem("auth");
-      await axios.post(`${API_URL}/new-announcement`, {
+      await http.post(`/announcements/new-announcement`, {
         ...newAnnouncement,
         recipients: newAnnouncement.recipients.split(",").map(r => r.trim()),
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
       });
 
       setShowAddModal(false);
@@ -150,15 +139,9 @@ const Announcement = () => {
     setFormErrors({}); // Clear errors
 
     try {
-      const token = localStorage.getItem("auth");
-      await axios.put(`${API_URL}/update-announcement/${editAnnouncement._id}`, {
+      await http.put(`/announcements/update-announcement/${editAnnouncement._id}`, {
         ...editAnnouncement,
         recipients: editAnnouncement.recipients.split(",").map(r => r.trim()),
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
       });
 
       setShowEditModal(false);
@@ -173,12 +156,7 @@ const Announcement = () => {
 
   const confirmDelete = async () => {
     try {
-      const token = localStorage.getItem("auth");
-      await axios.delete(`${API_URL}/delete-announcement/${deleteAnnouncementId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await http.delete(`/announcements/delete-announcement/${deleteAnnouncementId}`);
       setShowDeleteModal(false);
       fetchAnnouncements();
       toast.success("Announcement deleted successfully!");
@@ -224,26 +202,26 @@ const Announcement = () => {
                         announcements
                           .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
                           .map((announcement, index) => (
-                          <tr key={announcement._id}>
-                            <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                            <td>{announcement.title}</td>
-                            <td>{announcement.date && new Date(announcement.date).toLocaleDateString()}</td>
-                            <td>{announcement.type}</td>
-                            <td>{Array.isArray(announcement.recipients) ? announcement.recipients.join(", ") : announcement.recipients || "N/A"}</td>
-                            <td>
-                              <span className={`badge ${announcement.active ? "bg-success" : "bg-danger"}`}>
-                                {announcement.active ? "Yes" : "No"}
-                              </span>
-                            </td>
-                            <td>
-                              <DropdownButton variant="secondary" title="Action">
-                                <Dropdown.Item onClick={() => handleShowDetails(announcement)}>Details</Dropdown.Item>
-                                <Dropdown.Item onClick={() => handleShowEditModal(announcement)}>Edit</Dropdown.Item>
-                                <Dropdown.Item onClick={() => handleDeleteAnnouncement(announcement._id)}>Delete</Dropdown.Item>
-                              </DropdownButton>
-                            </td>
-                          </tr>
-                        ))
+                            <tr key={announcement._id}>
+                              <td>{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                              <td>{announcement.title}</td>
+                              <td>{announcement.date && new Date(announcement.date).toLocaleDateString()}</td>
+                              <td>{announcement.type}</td>
+                              <td>{Array.isArray(announcement.recipients) ? announcement.recipients.join(", ") : announcement.recipients || "N/A"}</td>
+                              <td>
+                                <span className={`badge ${announcement.active ? "bg-success" : "bg-danger"}`}>
+                                  {announcement.active ? "Yes" : "No"}
+                                </span>
+                              </td>
+                              <td>
+                                <DropdownButton variant="secondary" title="Action">
+                                  <Dropdown.Item onClick={() => handleShowDetails(announcement)}>Details</Dropdown.Item>
+                                  <Dropdown.Item onClick={() => handleShowEditModal(announcement)}>Edit</Dropdown.Item>
+                                  <Dropdown.Item onClick={() => handleDeleteAnnouncement(announcement._id)}>Delete</Dropdown.Item>
+                                </DropdownButton>
+                              </td>
+                            </tr>
+                          ))
                       ) : (
                         <tr>
                           <td colSpan="7" className="text-center">No announcements found</td>

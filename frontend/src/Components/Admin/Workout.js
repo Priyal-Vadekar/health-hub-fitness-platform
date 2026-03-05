@@ -1,15 +1,13 @@
 // frontend/src/Components/Admin/Workout.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Button, Dropdown, DropdownButton, Modal, Form, Badge } from "react-bootstrap";
 import Sidebar from "./Sidebar";
 import { Header } from "./Header";
 import "./css/Staff.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const API = "http://localhost:5000/api";
+import { http } from "../../api/http";
 
 const Workout = () => {
   const navigate = useNavigate();
@@ -35,7 +33,7 @@ const Workout = () => {
 
   const fetchWorkouts = async () => {
     try {
-      const res = await axios.get(`${API}/workouts`);
+      const res = await http.get(`/workouts`);
       setWorkouts(res.data.data || []);
     } catch (error) {
       console.error("Error fetching workouts:", error);
@@ -46,7 +44,7 @@ const Workout = () => {
 
   const fetchAllExercises = async () => {
     try {
-      const res = await axios.get(`${API}/exercises`);
+      const res = await http.get(`/exercises`);
       setAllExercises(res.data.data || []);
     } catch (error) {
       console.error("Error fetching exercises:", error);
@@ -61,7 +59,7 @@ const Workout = () => {
   const handleAddWorkout = async () => {
     if (!newWorkoutTitle.trim()) { toast.warn("Please enter a title."); return; }
     try {
-      const res = await axios.post(`${API}/workouts/new-workout`, { title: newWorkoutTitle, exercises: [] });
+      const res = await http.post(`/workouts/new-workout`, { title: newWorkoutTitle, exercises: [] });
       setWorkouts((prev) => [...prev, res.data.data]);
       setShowAddModal(false);
       setNewWorkoutTitle("");
@@ -74,7 +72,7 @@ const Workout = () => {
   const handleUpdateWorkout = async () => {
     try {
       const exerciseIds = editWorkout.exercises.map((e) => e._id || e);
-      await axios.put(`${API}/workouts/update-workout/${editWorkout._id}`, {
+      await http.put(`/workouts/update-workout/${editWorkout._id}`, {
         title: editWorkout.title,
         exercises: exerciseIds,
       });
@@ -110,7 +108,7 @@ const Workout = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${API}/workouts/delete-workout/${deleteWorkoutId}`);
+      await http.delete(`/workouts/delete-workout/${deleteWorkoutId}`);
       setShowDeleteModal(false);
       setWorkouts((prev) => prev.filter((w) => w._id !== deleteWorkoutId));
       toast.success("Workout deleted!");

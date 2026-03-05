@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
 import "../../css/StripePaymentPage.css";
+import { http } from "../../api/http";
 
 const RazorpaySuccess = () => {
   const navigate = useNavigate();
@@ -29,16 +29,12 @@ const RazorpaySuccess = () => {
         }
 
         // Verify payment on backend
-        const response = await axios.post(
-          "http://localhost:5000/api/razorpay/verify-payment",
+        const response = await http.post(
+          "/razorpay/verify-payment",
           {
             razorpay_payment_id: paymentId,
             razorpay_order_id: orderId,
             razorpay_signature: signature,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true,
           }
         );
 

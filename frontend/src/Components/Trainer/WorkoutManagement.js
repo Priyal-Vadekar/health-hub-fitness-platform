@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Button, Dropdown, DropdownButton, Modal, Form } from "react-bootstrap";
 import Sidebar from "../layout/Sidebar";
 import "../Admin/css/Staff.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { http } from "../../api/http";
 
 const Workout = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const Workout = () => {
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/workouts");
+        const res = await http.get("/workouts");
         setWorkouts(res.data.data || []);
         setLoading(false);
       } catch (error) {
@@ -57,8 +57,8 @@ const Workout = () => {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/workouts/new-workout",
+      const res = await http.post(
+        "/workouts/new-workout",
         {
           title: newWorkoutTitle,
           exercises: [],
@@ -77,8 +77,8 @@ const Workout = () => {
 
   const handleUpdateWorkout = async () => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/workouts/update-workout/${editWorkout._id}`,
+      await http.put(
+        `/workouts/update-workout/${editWorkout._id}`,
         {
           title: editTitle,
           exercises: editExercises,
@@ -101,9 +101,7 @@ const Workout = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/workouts/delete-workout/${deleteWorkoutId}`
-      );
+      await http.delete(`/workouts/delete-workout/${deleteWorkoutId}`);
       setShowDeleteModal(false);
       setWorkouts((prev) => prev.filter((w) => w._id !== deleteWorkoutId));
       toast.success("Workout deleted successfully!");
@@ -381,7 +379,7 @@ const Workout = () => {
               <h5>Exercises:</h5>
               <ul>
                 {selectedWorkout.exercises &&
-                selectedWorkout.exercises.length > 0 ? (
+                  selectedWorkout.exercises.length > 0 ? (
                   selectedWorkout.exercises.map((ex, index) => (
                     <li key={index}>{ex.name || ex}</li>
                   ))
@@ -447,9 +445,7 @@ const Workout = () => {
             onClick={async () => {
               try {
                 if (exerciseToDelete?.exerciseId) {
-                  await axios.delete(
-                    `http://localhost:5000/api/exercises/delete-exercise/${exerciseToDelete.exerciseId}`
-                  );
+                  await http.delete(`/exercises/delete-exercise/${exerciseToDelete.exerciseId}`);
                 }
 
                 const updatedExercises = editWorkout.exercises.filter(

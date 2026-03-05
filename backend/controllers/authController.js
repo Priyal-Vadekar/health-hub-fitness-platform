@@ -1,4 +1,4 @@
-// D:\Projects\Main Project\healthhub\backend\controllers\authController.js
+// backend/controllers/authController.js
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -11,6 +11,11 @@ const generateAccessToken = (user) => {
 };
 
 const createRefreshToken = async (userId) => {
+    await RefreshToken.updateMany(
+        { user: userId, revokedAt: null },
+        { $set: { revokedAt: new Date() } }
+    );
+
     const token = crypto.randomBytes(40).toString("hex");
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     await RefreshToken.create({ user: userId, token, expiresAt });
@@ -23,78 +28,81 @@ const setRefreshCookie = (res, token) => {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? "none" : "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
         path: "/",
-        maxAge: 30 * 24 * 60 * 60 * 1000
     });
 };
 
-// ================= REGISTER =================
+const deleteRevokedToken = async (tokenStr) => {
+    await RefreshToken.deleteOne({ token: tokenStr });
+};
+
+// Export generateAccessToken so authRoutes.js can import it directly
+exports.generateAccessToken = generateAccessToken;
+
+// REGISTER
 exports.register = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
 
-        if (password && password.length < 6) {
-            return res.status(400).json({ message: "Password must be at least 6 characters long" });
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: "Email already in use" });
+            return res.status(400).json({ message: "Email already registered" });
         }
 
-        const verificationToken = crypto.randomBytes(3).toString("hex").toUpperCase(); // 6-digit code
-        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = new User({
+        const verificationCode = crypto.randomBytes(32).toString("hex").toUpperCase();
+
+        const user = new User({
             name,
             email,
-            password,
-            role,
-            emailVerificationToken: verificationToken,
-            emailVerificationExpires: verificationExpires
+            password: hashedPassword,
+            role: role || "Member",
+            emailVerificationToken: verificationCode,
+            emailVerificationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            isEmailVerified: false,
         });
 
-        await newUser.save();
+        await user.save();
+        await sendVerificationEmail(user.email, user.name, verificationCode);
 
-        try {
-            await sendVerificationEmail(email, name, verificationToken);
-            res.status(201).json({
-                message: "User registered successfully. Please check your email for a verification code.",
-                user: newUser
-            });
-        } catch (emailError) {
-            console.error("Failed to send verification email:", emailError);
-            res.status(201).json({
-                message: "User registered successfully, but verification email could not be sent.",
-                user: newUser
-            });
-        }
+        res.status(201).json({
+            message: "Registration successful! Please check your email for the verification code.",
+        });
     } catch (error) {
-        console.error("Registration Error:", error);
-        res.status(500).json({ message: "Server error", error: error.message });
+        console.error("Register Error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 
-// ================= LOGIN =================
+// LOGIN
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
-
     try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: "User not found" });
+        const { email, password } = req.body;
 
-        if (!user.password) return res.status(400).json({ message: "Use Google Login instead" });
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: "User not found" });
 
         if (!user.isEmailVerified) {
-            return res.status(400).json({ message: "Please verify your email before logging in." });
+            return res.status(403).json({ message: "Please verify your email before logging in" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
         const accessToken = generateAccessToken(user);
-        const refreshToken = await createRefreshToken(user._id);
-        setRefreshCookie(res, refreshToken);
+        // createRefreshToken now revokes old tokens first (Bug 2 fix)
+        const refreshTokenStr = await createRefreshToken(user._id);
+        setRefreshCookie(res, refreshTokenStr);
         res.status(200).json({ message: "Login successful", user, token: accessToken });
     } catch (error) {
         console.error("Login Error:", error);
@@ -102,7 +110,7 @@ exports.login = async (req, res) => {
     }
 };
 
-// ================= CURRENT USER =================
+// CURRENT USER
 exports.getCurrentUser = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select("-password");
@@ -114,7 +122,7 @@ exports.getCurrentUser = async (req, res) => {
     }
 };
 
-// ================= VERIFY EMAIL =================
+// VERIFY EMAIL
 exports.verifyEmail = async (req, res) => {
     try {
         const { email, code } = req.body;
@@ -123,26 +131,18 @@ exports.verifyEmail = async (req, res) => {
 
         const user = await User.findOne({
             email,
-            emailVerificationExpires: { $gt: Date.now() }
+            emailVerificationExpires: { $gt: Date.now() },
         });
 
         if (!user) return res.status(404).json({ message: "User not found or code expired" });
 
         if (user.emailVerificationToken !== code.toUpperCase()) {
-            // Wrong code → generate a new one & send again
-            const newCode = crypto.randomBytes(3).toString("hex").toUpperCase();
-            user.emailVerificationToken = newCode;
-            user.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-            await user.save();
-
-            await sendVerificationEmail(user.email, user.name, newCode);
-
             return res.status(400).json({
-                message: "The code you entered is incorrect. We have sent a new verification code to your email."
+                message: "The code you entered is incorrect. Please try again or request a new code.",
             });
         }
 
-        // ✅ Correct code → verify email
+        // Correct code --> verify email
         user.isEmailVerified = true;
         user.emailVerificationToken = null;
         user.emailVerificationExpires = null;
@@ -155,7 +155,7 @@ exports.verifyEmail = async (req, res) => {
     }
 };
 
-// ================= RESEND VERIFICATION =================
+// RESEND VERIFICATION
 exports.resendVerificationEmail = async (req, res) => {
     try {
         const { email } = req.body;
@@ -167,7 +167,8 @@ exports.resendVerificationEmail = async (req, res) => {
             return res.status(400).json({ message: "Email is already verified" });
         }
 
-        const newCode = crypto.randomBytes(3).toString("hex").toUpperCase();
+        // Use 32 bytes here too (was 3 bytes / 6 hex chars)
+        const newCode = crypto.randomBytes(32).toString("hex").toUpperCase();
         user.emailVerificationToken = newCode;
         user.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await user.save();
@@ -181,7 +182,7 @@ exports.resendVerificationEmail = async (req, res) => {
     }
 };
 
-// ================= FORGOT PASSWORD =================
+// FORGOT PASSWORD
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
@@ -205,7 +206,7 @@ exports.forgotPassword = async (req, res) => {
     }
 };
 
-// ================= RESET PASSWORD =================
+// RESET PASSWORD
 exports.resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
@@ -216,12 +217,12 @@ exports.resetPassword = async (req, res) => {
 
         const user = await User.findOne({
             passwordResetToken: token,
-            passwordResetExpires: { $gt: Date.now() }
+            passwordResetExpires: { $gt: Date.now() },
         });
 
         if (!user) return res.status(400).json({ message: "Invalid or expired reset token" });
 
-        user.password = newPassword;
+        user.password = await bcrypt.hash(newPassword, 10);
         user.passwordResetToken = null;
         user.passwordResetExpires = null;
         await user.save();
@@ -233,33 +234,28 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-// ================= CHANGE PASSWORD (Authenticated) =================
+// CHANGE PASSWORD
 exports.changePassword = async (req, res) => {
     try {
-        const userId = req.user.id;
         const { currentPassword, newPassword } = req.body;
 
-        if (!newPassword || newPassword.length < 6) {
-            return res.status(400).json({ message: "New password must be at least 6 characters long" });
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: "Both passwords are required" });
         }
 
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: "New password must be at least 6 characters" });
         }
 
-        if (user.password) {
-            if (!currentPassword) {
-                return res.status(400).json({ message: "Current password is required" });
-            }
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-            const isMatch = await bcrypt.compare(currentPassword, user.password);
-            if (!isMatch) {
-                return res.status(400).json({ message: "Current password is incorrect" });
-            }
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "Current password is incorrect" });
         }
 
-        user.password = newPassword;
+        user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
 
         res.status(200).json({ success: true, message: "Password updated successfully" });
@@ -269,7 +265,7 @@ exports.changePassword = async (req, res) => {
     }
 };
 
-// ================= REFRESH TOKEN =================
+// REFRESH TOKEN
 exports.refreshToken = async (req, res) => {
     try {
         const presented = req.cookies && req.cookies.refreshToken;
@@ -283,12 +279,10 @@ exports.refreshToken = async (req, res) => {
         const user = await User.findById(existing.user);
         if (!user) return res.status(401).json({ message: "User not found" });
 
-        // Rotate token
-        existing.revokedAt = new Date();
-        await existing.save();
+        await deleteRevokedToken(presented);
 
-        const newRefreshToken = await createRefreshToken(user._id);
-        setRefreshCookie(res, newRefreshToken);
+        const newRefreshTokenStr = await createRefreshToken(user._id);
+        setRefreshCookie(res, newRefreshTokenStr);
 
         const newAccessToken = generateAccessToken(user);
         return res.status(200).json({ token: newAccessToken });
@@ -298,16 +292,26 @@ exports.refreshToken = async (req, res) => {
     }
 };
 
-// ================= LOGOUT (REVOKE REFRESH) =================
+// LOGOUT
 exports.logout = async (req, res) => {
     try {
         const presented = req.cookies && req.cookies.refreshToken;
+
+        // Revoke ALL active refresh tokens for this user, not just
+        // the current cookie's token. This ensures that logging out on one device
+        // invalidates all other active sessions (other devices/tabs).
         if (presented) {
-            await RefreshToken.updateOne(
-                { token: presented },
-                { $set: { revokedAt: new Date() } }
-            );
+            // Identify which user owns this token first
+            const existing = await RefreshToken.findOne({ token: presented });
+            if (existing) {
+                // Delete ALL tokens for this user (global logout)
+                await RefreshToken.deleteMany({ user: existing.user });
+            } else {
+                // Token not in DB (already revoked), still clear the cookie
+                await RefreshToken.deleteOne({ token: presented });
+            }
         }
+
         res.clearCookie("refreshToken", { path: "/" });
         return res.status(200).json({ message: "Logout successful" });
     } catch (error) {
